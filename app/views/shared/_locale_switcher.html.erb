@@ -1,0 +1,9 @@
+<nav aria-label="<%= t("locale_switcher.label") %>">
+  <% I18n.available_locales.each do |loc| %>
+    <%= button_to t("locale_switcher.languages.#{loc}"),
+                  locale_path(locale: loc),
+                  method: :patch,
+                  form: { style: "display:inline" },
+                  disabled: I18n.locale == loc %>
+  <% end %>
+</nav>

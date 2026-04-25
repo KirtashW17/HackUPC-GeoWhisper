@@ -1,9 +1,26 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
+# Seeds — idempotent. Safe to run multiple times.
+# Usage: bin/rails db:seed
 #
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+# Creates one user per supported locale, all with the same password ("ghost123")
+# so they're easy to log in with during demos and manual testing.
+
+DEMO_PASSWORD = "ghost123".freeze
+
+USERS = [
+  { email: "alice@example.com", language: "en" },
+  { email: "ana@example.com",   language: "es" },
+  { email: "anna@example.com",  language: "ca" }
+].freeze
+
+USERS.each do |attrs|
+  user = User.find_or_initialize_by(email: attrs[:email])
+  user.assign_attributes(
+    language: attrs[:language],
+    password: DEMO_PASSWORD,
+    password_confirmation: DEMO_PASSWORD
+  )
+  user.save!
+end
+
+puts "Seeded #{User.count} users (password: #{DEMO_PASSWORD})."
+USERS.each { |u| puts "  - #{u[:email]} (#{u[:language]})" }

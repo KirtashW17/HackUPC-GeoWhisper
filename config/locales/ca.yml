@@ -1,0 +1,53 @@
+ca:
+  app:
+    name: GeoWhisper
+    tagline: Notes fantasma repartides pel món
+  layout:
+    sign_in: Entra
+    sign_up: Registra't
+    sign_out: Surt
+    greeting: "Connectat com a %{email}"
+  home:
+    welcome: Benvingut a GeoWhisper
+    visitor_hint: Inicia sessió o crea un compte per començar a deixar notes fantasma.
+  auth:
+    login:
+      title: Benvingut de nou
+      eyebrow: Benvingut de nou
+      headline:
+        prefix: "Reprèn"
+        emphasis: on vas deixar
+        suffix: "l'última nota."
+      submit: Entra
+      invalid: Correu o contrasenya incorrectes
+      success: Has entrat correctament
+      no_account: "Ets nou?"
+      create_link: Crea un compte
+    logout:
+      success: Has sortit
+    signup:
+      title: Crea el teu compte
+      eyebrow: Deixa una petita marca
+      headline:
+        prefix: "Un nom amb el qual"
+        emphasis: signar
+        suffix: "els teus xiuxiueigs."
+      submit: Comença
+      success: Benvingut a GeoWhisper
+      have_account: "Ja tens un nom?"
+      login_link: Entra
+    fields:
+      email: Correu
+      password: Contrasenya
+      password_confirmation: Confirma la contrasenya
+    divider_or: o
+    google_continue: Continua amb Google
+    soon: Aviat
+  locale_switcher:
+    label: Idioma
+    languages:
+      en: Anglès
+      es: Castellà
+      ca: Català
+  errors:
+    forbidden: Has d'iniciar sessió primer.

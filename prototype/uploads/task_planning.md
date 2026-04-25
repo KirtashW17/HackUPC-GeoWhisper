@@ -103,26 +103,13 @@ Razones para preferir `nil` sobre `0`:
 ## Lista de tareas
 
 ### Fase 0 — Fundamentos
-
-> Estado: **parcialmente completada**. Auth + i18n hechos en Rails 7.2 (sin DaisyUI, sin Tailwind aún — la capa visual la integra Claude Design en paralelo y se mete en Fase 1). Detalle por sub-tarea en [`doc/plans/phase_0_auth_i18n_ci.md`](plans/phase_0_auth_i18n_ci.md).
-
-- [ ] Añadir Tailwind (`tailwindcss-rails`) — *(movido a Fase 1, en plan `phase_1_ui_login_onboarding.md`)*
-- [ ] ~~DaisyUI~~ — descartado (decisión 1 del plan de Fase 1)
-- [ ] Layout base mobile-first responsive — *(Fase 1)*
-- [X] Esqueleto de `config/locales/{en,es,ca}.yml` con paridad
-- [X] `ApplicationController#set_locale` con prioridad param > user > session > Accept-Language > default
-- [X] `LocalesController#update` para cambiar idioma (sesión + persistencia en User si autenticado)
-- [ ] Selector de idioma visible en UI — *(diferido a `/profile`, futuro)*
-- [X] Modelo `User` con email, password (`has_secure_password`), `language`, validaciones, `normalizes :email`
-- [X] Modelo `Session` con `belongs_to :user`
-- [X] `Authentication` concern (resume_session, require_authentication, start_new_session_for, terminate_session)
-- [X] `RegistrationsController` (signup) + `SessionsController` (login/logout) + auto-set de `language` desde `I18n.locale`
-- [X] Tests: 29/29 verdes (UserTest, SessionsControllerTest, RegistrationsControllerTest, LocalesControllerTest, LocaleResolutionTest, I18nParityTest)
-- [ ] Vistas auth estilizadas (Tailwind + tokens del prototipo) — *(Fase 1)*
-- [X] CI workflow ya existe en `.github/workflows/ci.yml` (Brakeman, importmap audit, RuboCop, tests)
-- [ ] **Verificar** que el CI pasa verde con el código actual (RuboCop sin warnings, Brakeman sin alertas, tests verdes)
-- [X] Gem `i18n-tasks` añadida al Gemfile
-- [ ] Configurar `i18n-tasks` (`config/i18n-tasks.yml`) y sustituir `I18nParityTest` por `bin/i18n-tasks health` — apuntado en [`next-steps.md`](next-steps.md)
+1. Añadir Tailwind (`tailwindcss-rails`) + DaisyUI
+2. Layout base mobile-first: viewport meta, navegación inferior estilo app, paleta limpia
+3. Selector de idioma global (en/es/ca) y switcher en UI
+4. Esqueleto de `config/locales/{en,es,ca}.yml`
+5. Generar autenticación Rails 8 (`User`: email, password, `preferred_languages`)
+6. Páginas de signup / login / logout estilizadas e i18n-ed
+7. CI básico (GitHub Actions) ejecutando `bin/rails test`, `bin/rubocop`, `bin/brakeman`
 
 ### Fase 1 — Modelo de datos
 8. Migración + modelo `Note`. Columnas: `content:text`, `latitude:decimal`, `longitude:decimal`, `expires_at:datetime` **(nullable)**, `max_views:integer` **(nullable)**, `views_count:integer default: 0`, `user:references`, `visibility:integer` enum, `language:string` con índice. Índice compuesto `(latitude, longitude)` para acelerar bounding box.

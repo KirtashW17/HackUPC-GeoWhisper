@@ -104,11 +104,7 @@ bin/rails test test/controllers/
 bin/rails test test/models/note_test.rb
 ```
 
-Para los tests de sistema (Capybara + Selenium):
-
-```bash
-bin/rails test:system
-```
+> **Sin tests de sistema.** El proyecto **no** usa Capybara/Selenium. Toda la cobertura va por tests de modelo, controlador e integración (`ActionDispatch::IntegrationTest`). Ver `CLAUDE.md` para el detalle.
 
 ---
 
