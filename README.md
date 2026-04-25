@@ -72,6 +72,14 @@ bin/rails db:seed
 
 ## Ejecutar la aplicación
 
+En desarrollo lo recomendado es usar `bin/dev`, que arranca el servidor Rails y el watcher de Tailwind en paralelo (definidos en `Procfile.dev`):
+
+```bash
+bin/dev
+```
+
+Si solo necesitas el servidor sin el watcher de CSS:
+
 ```bash
 bin/rails server
 # o si has instalado las gems localmente:
@@ -79,6 +87,22 @@ bundle exec rails server
 ```
 
 La aplicación estará disponible en [http://localhost:3000](http://localhost:3000).
+
+### Tailwind CSS
+
+Tailwind se gestiona con el gem **`tailwindcss-rails`** (sin Node ni npm). El CSS compilado vive en `app/assets/builds/tailwind.css`, que es un **artefacto de build** y **no se chequea en el repo** — cada máquina dev lo genera localmente y el deploy lo regenera durante `assets:precompile`.
+
+Tras clonar, si ves un error tipo "tailwind.css no existe", genera el build:
+
+```bash
+# Build único
+bin/rails tailwindcss:build
+
+# Watch en paralelo (recompila al editar clases)
+bin/rails tailwindcss:watch
+```
+
+`bin/dev` ya lanza el watcher automáticamente, así que en el flujo normal no hace falta invocarlos a mano.
 
 > **Nota sobre geolocalización:** la API de Geolocation del navegador requiere un *secure context*. En `localhost` funciona; al desplegar a otro host necesitarás HTTPS para que el navegador entregue las coordenadas.
 
@@ -104,7 +128,7 @@ bin/rails test test/controllers/
 bin/rails test test/models/note_test.rb
 ```
 
-> **Sin tests de sistema.** El proyecto **no** usa Capybara/Selenium. Toda la cobertura va por tests de modelo, controlador e integración (`ActionDispatch::IntegrationTest`). Ver `CLAUDE.md` para el detalle.
+> **Sin tests de sistema.** El proyecto **no** usa tests de sistema. Toda la cobertura va por tests de modelo, controlador e integración (`ActionDispatch::IntegrationTest`).
 
 ---
 
@@ -157,8 +181,9 @@ test/             # Tests MiniTest
 
 ## Stack técnico
 
-- **Ruby on Rails 8** + Hotwire/Turbo + Stimulus
+- **Ruby on Rails 7.2** + Hotwire/Turbo + Stimulus
 - **SQLite** como base de datos (desarrollo, test y MVP)
-- **SolidQueue** para jobs en segundo plano (purga de notas expiradas)
+- **Tailwind CSS** vía `tailwindcss-rails` (binario standalone, sin Node)
+- **Active Job** (backend por defecto) para jobs en segundo plano como la purga de notas expiradas
 - **Leaflet + OpenStreetMap** para la vista de mapa (sin API key)
 - **Geolocation API** del navegador para capturar coordenadas
