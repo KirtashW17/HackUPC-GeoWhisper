@@ -13,13 +13,8 @@ class LocalesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "persists language on the authenticated user" do
-    user = User.create!(
-      email: "alice@example.com",
-      password: "secret123",
-      password_confirmation: "secret123",
-      language: "en"
-    )
-    post session_path, params: { email: user.email, password: "secret123" }
+    user = users(:alice)
+    sign_in_as(user)
 
     patch locale_path(locale: "ca")
 

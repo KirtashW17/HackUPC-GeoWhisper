@@ -14,7 +14,7 @@ class CreateNotes < ActiveRecord::Migration[7.2]
       t.index [:latitude, :longitude]
       t.index :longitude
       t.index :language
-      
+
       t.timestamps
     end
   end

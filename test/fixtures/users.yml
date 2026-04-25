@@ -1,2 +1,19 @@
-# Empty: tests build users explicitly to control passwords without bcrypt
-# overhead in fixtures.
+<% password_digest = BCrypt::Password.create("secret123", cost: BCrypt::Engine::MIN_COST) %>
+
+alice:
+  email: alice@example.com
+  password_digest: <%= password_digest %>
+  language: en
+  onboarded_at: <%= Time.current.iso8601 %>
+
+bob:
+  email: bob@example.com
+  password_digest: <%= password_digest %>
+  language: en
+  onboarded_at: null
+
+carla:
+  email: carla@example.com
+  password_digest: <%= password_digest %>
+  language: ca
+  onboarded_at: <%= Time.current.iso8601 %>

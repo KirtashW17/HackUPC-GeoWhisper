@@ -12,7 +12,7 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
       assert_difference("Session.count", 1) do
         post registration_path, params: {
           user: {
-            email: "bob@example.com",
+            email: "newcomer@example.com",
             password: "secret123",
             password_confirmation: "secret123"
           }
@@ -26,7 +26,7 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference("User.count") do
       post registration_path, params: {
         user: {
-          email: "bob@example.com",
+          email: "newcomer@example.com",
           password: "secret123",
           password_confirmation: "nope"
         }
@@ -40,11 +40,11 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
          params: {
            locale: "ca",
            user: {
-             email: "carla@example.com",
+             email: "newca@example.com",
              password: "secret123",
              password_confirmation: "secret123"
            }
          }
-    assert_equal "ca", User.find_by(email: "carla@example.com").language
+    assert_equal "ca", User.find_by(email: "newca@example.com").language
   end
 end

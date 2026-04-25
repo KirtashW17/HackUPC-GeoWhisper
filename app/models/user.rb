@@ -13,6 +13,7 @@ class User < ApplicationRecord
 
   has_secure_password
   has_many :sessions, dependent: :destroy
+  # Or maybe we should keep them as "anonymous" notes?
   has_many :notes, dependent: :destroy
 
   normalizes :email, with: ->(value) { value.to_s.strip.downcase }

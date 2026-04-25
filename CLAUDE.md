@@ -20,6 +20,7 @@ Project docs (start here before changing anything substantial):
 These are project policy, not preferences. Apply them on every change.
 
 - **TDD is mandatory.** Write a failing MiniTest test first, then the production code. Every feature — models, controllers, jobs, system flows — must be scrupulously covered. Do not submit code without tests.
+- **Prefer fixtures for test data.** When a test needs a persisted record, reach for a fixture in `test/fixtures/*.yml` (referenced via `users(:alice)`, `notes(:foo)`, etc.) before falling back to inline `Model.create!` setup. Fixtures load once per test run and keep test bodies focused on the behavior under test. Inline construction is appropriate when the test specifically exercises the creation/validation path or needs an attribute that no fixture should carry — in that case, use a baseline-attrs helper and keep emails/identifiers distinct from fixture values to avoid uniqueness collisions.
 - **i18n for all user-facing strings.** No hardcoded text in views, controllers, mailers, or flash messages. Use `t("...")` / `I18n.t(...)` with keys in `config/locales/*.yml`. Keep key parity across all locale files. Use the standard `activerecord.errors` / `activemodel.errors` keys for validation messages.
 - **RuboCop must pass clean.** The project uses `rubocop-rails-omakase`. Run `bin/rubocop` before considering work done; no new warnings.
 - **Brakeman must pass clean.** Run `bin/brakeman` before considering work done; no new alerts.

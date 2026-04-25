@@ -28,13 +28,7 @@ class LocaleResolutionTest < ActionDispatch::IntegrationTest
   end
 
   test "authenticated user language is used when no param present" do
-    user = User.create!(
-      email: "alice@example.com",
-      password: "secret123",
-      password_confirmation: "secret123",
-      language: "ca"
-    )
-    post session_path, params: { email: user.email, password: "secret123" }
+    sign_in_as(users(:carla))
 
     get root_path
     assert_equal :ca, I18n.locale

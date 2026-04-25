@@ -12,7 +12,7 @@ class UserTest < ActiveSupport::TestCase
   # @return [Hash{Symbol => Object}] a complete, valid attribute set.
   def valid_attrs(overrides = {})
     {
-      email: "alice@example.com",
+      email: "tester@example.com",
       password: "secret123",
       password_confirmation: "secret123",
       language: "en"
@@ -36,15 +36,14 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "email is unique case-insensitively" do
-    User.create!(valid_attrs)
-    duplicate = User.new(valid_attrs(email: "ALICE@EXAMPLE.COM"))
+    duplicate = User.new(valid_attrs(email: users(:alice).email.upcase))
     assert_not duplicate.valid?
     assert duplicate.errors[:email].any?
   end
 
   test "email is normalized (stripped and downcased)" do
-    user = User.create!(valid_attrs(email: "  Alice@Example.COM  "))
-    assert_equal "alice@example.com", user.email
+    user = User.create!(valid_attrs(email: "  Tester@Example.COM  "))
+    assert_equal "tester@example.com", user.email
   end
 
   test "requires password" do
@@ -70,7 +69,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "has many sessions, destroyed with the user" do
-    user = User.create!(valid_attrs)
+    user = users(:bob)
     user.sessions.create!
     assert_difference("Session.count", -1) do
       user.destroy

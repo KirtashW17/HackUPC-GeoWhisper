@@ -4,14 +4,8 @@ require "test_helper"
 # form, stubbed create, and detail view.
 class NotesControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @user = User.create!(
-      email: "alice@example.com",
-      password: "secret123",
-      password_confirmation: "secret123",
-      language: "en",
-      onboarded_at: Time.current
-    )
-    post session_path, params: { email: @user.email, password: "secret123" }
+    @user = users(:alice)
+    sign_in_as(@user)
   end
 
   # ── #nearby ────────────────────────────────────────────────────

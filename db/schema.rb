@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_04_25_145936) do
+ActiveRecord::Schema[7.2].define(version: 2026_04_25_205838) do
   create_table "notes", force: :cascade do |t|
     t.text "content", null: false
     t.decimal "latitude", precision: 10, scale: 6, null: false
@@ -23,6 +23,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_25_145936) do
     t.string "language"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "archived", default: false, null: false
     t.index ["language"], name: "index_notes_on_language"
     t.index ["latitude", "longitude"], name: "index_notes_on_latitude_and_longitude"
     t.index ["longitude"], name: "index_notes_on_longitude"

@@ -2,12 +2,7 @@ require "test_helper"
 
 class NoteTest < ActiveSupport::TestCase
   def setup
-    @user = User.create!(
-      email: "alice@example.com",
-      password: "secret123",
-      password_confirmation: "secret123",
-      language: "en"
-    )
+    @user = users(:alice)
   end
 
   def valid_attrs(overrides = {})
@@ -156,5 +151,5 @@ class NoteTest < ActiveSupport::TestCase
     note = Note.new(valid_attrs)
     assert note.user
     assert_equal @user, note.user
-  end 
+  end
 end
