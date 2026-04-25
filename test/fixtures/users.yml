@@ -1,0 +1,2 @@
+# Empty: tests build users explicitly to control passwords without bcrypt
+# overhead in fixtures.

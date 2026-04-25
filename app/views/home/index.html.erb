@@ -1,0 +1,13 @@
+<h1><%= t("home.welcome") %></h1>
+<p><%= t("app.tagline") %></p>
+
+<% if authenticated? %>
+  <p><%= t("layout.greeting", email: current_user.email) %></p>
+  <%= button_to t("layout.sign_out"), session_path, method: :delete %>
+<% else %>
+  <p><%= t("home.visitor_hint") %></p>
+  <%= link_to t("layout.sign_in"), new_session_path %>
+  <%= link_to t("layout.sign_up"), new_registration_path %>
+<% end %>
+
+<%= render "shared/locale_switcher" %>

@@ -1,0 +1,53 @@
+es:
+  app:
+    name: GeoWhisper
+    tagline: Notas fantasma repartidas por el mundo
+  layout:
+    sign_in: Entrar
+    sign_up: Registrarse
+    sign_out: Salir
+    greeting: "Conectado como %{email}"
+  home:
+    welcome: Bienvenido a GeoWhisper
+    visitor_hint: Inicia sesión o crea una cuenta para empezar a dejar notas fantasma.
+  auth:
+    login:
+      title: Bienvenido de nuevo
+      eyebrow: Bienvenido de nuevo
+      headline:
+        prefix: "Retoma"
+        emphasis: donde dejaste
+        suffix: "la última nota."
+      submit: Entrar
+      invalid: Email o contraseña incorrectos
+      success: Has entrado correctamente
+      no_account: "¿Eres nuevo?"
+      create_link: Crea una cuenta
+    logout:
+      success: Has salido
+    signup:
+      title: Crea tu cuenta
+      eyebrow: Deja una pequeña marca
+      headline:
+        prefix: "Un nombre con el que"
+        emphasis: firmar
+        suffix: "tus susurros."
+      submit: Comenzar
+      success: Bienvenido a GeoWhisper
+      have_account: "¿Ya tienes un nombre?"
+      login_link: Entra
+    fields:
+      email: Email
+      password: Contraseña
+      password_confirmation: Confirmar contraseña
+    divider_or: o
+    google_continue: Continuar con Google
+    soon: Pronto
+  locale_switcher:
+    label: Idioma
+    languages:
+      en: Inglés
+      es: Español
+      ca: Catalán
+  errors:
+    forbidden: Debes iniciar sesión primero.
