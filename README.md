@@ -88,6 +88,8 @@ La aplicación estará disponible en [http://localhost:3000](http://localhost:30
 
 El proyecto usa **MiniTest**, el framework de tests por defecto de Rails.
 
+> **Metodología TDD obligatoria:** todas las funcionalidades se desarrollan siguiendo *Test-Driven Development* (red → green → refactor). Antes de escribir código de producción debe existir un test que falle, y todas las funcionalidades —modelos, controladores, vistas, jobs y flujos de sistema— deben estar **escrupulosamente testeadas**. No se aceptan PRs con código sin cobertura de tests.
+
 ```bash
 # Todos los tests
 bin/rails test
@@ -112,13 +114,29 @@ bin/rails test:system
 
 ## Herramientas de calidad de código
 
+El proyecto exige el uso de las siguientes herramientas. Cualquier cambio debe pasar **RuboCop** sin warnings y **Brakeman** sin alertas nuevas antes de ser fusionado.
+
 ```bash
-# Linting (RuboCop)
+# Linting de estilo Ruby/Rails (RuboCop) — obligatorio
 bin/rubocop
 
-# Análisis de seguridad estática
+# Autocorrección de violaciones triviales
+bin/rubocop -a
+
+# Análisis estático de seguridad (Brakeman) — obligatorio
 bin/brakeman
 ```
+
+---
+
+## Internacionalización (i18n)
+
+GeoWhisper utiliza el sistema de **internacionalización i18n de Rails** para todos los textos visibles al usuario. Es **obligatorio**:
+
+- **No hardcodear strings** en vistas, controladores, mailers ni flash messages. Todos los textos deben pasar por `t("clave.de.traduccion")` o `I18n.t(...)`.
+- Definir las claves en los ficheros de `config/locales/` (`es.yml`, `en.yml`, ...) siguiendo la jerarquía del recurso (`notes.create.success`, etc.).
+- Mantener **paridad de claves** entre todos los idiomas soportados; una clave nueva en `es.yml` debe añadirse también al resto de locales.
+- Los mensajes de validación de modelos deben usar las claves estándar de `activerecord.errors` / `activemodel.errors`.
 
 ---
 
