@@ -1,0 +1,9 @@
+<%# Disabled-with-SOON row used by the PRESENCE section. %>
+<div class="flex items-center gap-2.5 px-4 py-3.5 opacity-55 <%= last ? '' : 'border-b border-card-edge' %>"
+     data-row="<%= row %>" aria-disabled="true">
+  <span class="flex-1 font-serif text-[15px] text-ink"><%= title %></span>
+  <span class="rounded-sm bg-bg-deep px-1.5 py-0.5 font-mono text-[9px] font-semibold tracking-eyebrow text-ink-soft">
+    <%= t("yourself.soon_badge") %>
+  </span>
+  <span class="font-mono text-[11px] tracking-eyebrow text-ink-soft"><%= value %></span>
+</div>

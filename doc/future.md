@@ -94,6 +94,18 @@ Crítico antes de cualquier release público real.
 - **Indicador de "alguien acaba de dejar una"** — animación discreta cuando llega una nota nueva en el radio del usuario.
 - **Radio de búsqueda configurable por el usuario** — hoy el radio está hardcoded en el wrapper de `/map` (`data-map-radius-value="5000"`, capado a 5 km en el server). El usuario no puede ajustarlo. *Nice-to-have:* exponer un slider o segmented control en el header del mapa (`100 m / 500 m / 1 km / 5 km`) que actualice el `radiusValue` del Stimulus controller y dispare un re-fetch. Persistir la última elección por usuario (`User#preferred_radius_m`) para que se recuerde entre sesiones. Considerar también vincularlo automáticamente al zoom de Leaflet en lugar de manual.
 
+## Clustering del mapa: optimización y reverse geocoding
+
+- **Algoritmo del clusterer** — la Fase 3 implementa un greedy O(n²) sobre coords proyectadas a píxeles, recalculado en `zoomend`/`moveend`. Sirve mientras `n ≤ ~200` (capado por el radio de 5 km y la escala hackathon). Cuando crezca:
+  - **Grid hashing** propio: cubeta cada `40 px`, mira la celda actual + 8 vecinas. O(n) amortizado, sin dependencias.
+  - **`leaflet.markercluster`** (plugin Leaflet de Mapbox / comunidad) — maduro, soporta animaciones y *spiderfy*. *Contra:* su modelo "zoom para abrir" choca con nuestra regla de "el zoom no separa mismas coords"; habría que desactivar `zoomToBoundsOnClick` y reescribir el render del cluster mark para mantener el look "stack de papelitos". Sólo merece la pena si el plugin aporta algo más (animaciones, performance) que justifique pelear con su API.
+  - **Supercluster** (Mapbox, headless) — clusterer puro JS, sin opinión sobre la UI. Bueno si queremos mantener nuestro mark y sólo delegar el agrupamiento; coste: 1 dep + adaptar la entrada/salida a Leaflet.
+  - Decisión por defecto cuando llegue: **grid hashing propio**. Sólo migrar a Supercluster si el grid se queda corto a escala real.
+- **Reverse geocoding** del título del bottom sheet — la Fase 3 usa sólo eyebrow `N whispers here` + chip de distancia. Cuando interese un título humano (`Plaça Reial`, `Cafè del Born`):
+  - **Nominatim** (OSM, gratis, rate-limited a 1 req/s desde la misma IP — *no* desde cliente) → lookup server-side, cacheado en una tabla `geocoded_places(lat, lng, name, fetched_at)` con bucketing a 5 decimales (~1 m).
+  - **Mapbox Geocoding** o **Google** si Nominatim no aguanta — requiere API key y entra en TOS de pago.
+  - El servidor expondría `name` en el payload de `/notes/nearby`, opcional. El cliente lo pinta como `<h1>` del sheet si está presente.
+
 ---
 
 ## Cómo se mantiene este documento

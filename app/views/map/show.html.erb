@@ -9,8 +9,17 @@
      data-map-radius-value="5000"
      data-map-i18n-value="<%= {
        closest: t("map.peek.meta.closest"),
-       no_time_limit: t("map.peek.meta.time_left_unlimited"),
-       unlimited_views: t("map.peek.meta.views_left_unlimited")
+       time_ago_now: t("map.peek.meta.time_ago_now"),
+       time_ago_minutes: t("map.peek.meta.time_ago_minutes", count: "__N__"),
+       time_ago_hours: t("map.peek.meta.time_ago_hours", count: "__N__"),
+       time_ago_days: t("map.peek.meta.time_ago_days", count: "__N__"),
+       cluster_eyebrow_one: t("map.cluster.eyebrow.one"),
+       cluster_eyebrow_other: t("map.cluster.eyebrow.other"),
+       cluster_here_eyebrow: t("map.cluster.here_eyebrow"),
+       cluster_distance_away: t("map.cluster.distance_away"),
+       cluster_close: t("map.cluster.close"),
+       cluster_peek_one: t("map.cluster.peek.one"),
+       cluster_peek_other: t("map.cluster.peek.other")
      }.to_json %>">
 
   <%# ── Top header (Nearby chip + segmented Map/List + recenter) ── %>
@@ -144,6 +153,33 @@
             class="mt-5 rounded-button bg-accent px-0 py-4 font-sans text-base font-semibold tracking-wide text-bg shadow-cta">
       <%= t("map.denied.retry") %>
     </button>
+  </section>
+
+  <%# ── Cluster bottom sheet (open/close via map controller) ── %>
+  <div data-map-target="overlay"
+       data-action="click->map#closeSheet"
+       class="gw-cluster-overlay"
+       hidden></div>
+
+  <button type="button"
+          data-map-target="closePill"
+          data-action="click->map#closeSheet"
+          class="gw-cluster-sheet__close"
+          hidden>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+      <path d="M19 12H5M12 19l-7-7 7-7"/>
+    </svg>
+    <span><%= t("map.cluster.close") %></span>
+  </button>
+
+  <section data-map-target="sheet"
+           class="gw-cluster-sheet"
+           hidden>
+    <div class="gw-cluster-sheet__handle" aria-hidden="true"></div>
+    <header class="gw-cluster-sheet__header">
+      <p class="gw-cluster-sheet__eyebrow" data-map-target="sheetEyebrow"></p>
+    </header>
+    <div class="gw-cluster-sheet__list" data-map-target="sheetList"></div>
   </section>
 
   <%= render "shared/tab_bar", active: :map %>

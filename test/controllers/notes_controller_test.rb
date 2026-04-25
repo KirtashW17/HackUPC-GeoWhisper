@@ -31,23 +31,24 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     note = body["notes"].first
 
     assert_equal %w[content distance_m id language latitude longitude
-                    time_left_seconds views_remaining].sort,
+                    seconds_since_publication views_count max_views].sort,
                  note.keys.sort
   end
 
-  test "nearby preserves nil for permanent notes (time_left_seconds)" do
+  test "nearby exposes seconds_since_publication as a non-negative integer" do
     get nearby_notes_path(format: :json), params: { lat: 41.2236, lng: 1.7280, radius: 5000 }
     body = JSON.parse(response.body)
-    permanent = body["notes"].find { |n| n["time_left_seconds"].nil? }
+    note = body["notes"].first
 
-    assert permanent, "expected at least one permanent note in fixture data"
+    assert_kind_of Integer, note["seconds_since_publication"]
+    assert_operator note["seconds_since_publication"], :>=, 0
   end
 
-  test "nearby preserves nil for unlimited-view notes (views_remaining)" do
+  test "nearby preserves nil max_views for unlimited-view notes" do
     get nearby_notes_path(format: :json),
         params: { lat: 41.3892, lng: 2.1133, radius: 5000 }
     body = JSON.parse(response.body)
-    unlimited = body["notes"].find { |n| n["views_remaining"].nil? }
+    unlimited = body["notes"].find { |n| n["max_views"].nil? }
 
     assert unlimited, "expected at least one unlimited-view note in fixture data"
   end
@@ -219,7 +220,10 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
-  test "show returns 404 for an inactive (expired) note" do
+  test "show returns 404 for an inactive (expired) note when caller is not the author" do
+    # expired_brunch is alice's; sign in as a different user so the
+    # owner-trail exception does not apply.
+    sign_in_as(users(:carla))
     get note_path(notes(:expired_brunch))
     assert_response :not_found
   end
@@ -231,10 +235,31 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "show calls view! on the note (increments views_count)" do
-    note = notes(:placa_reial_lampposts)
+    # Use a note owned by someone else; authors viewing their own whisper
+    # do not consume the read budget (see Note#view!).
+    note = notes(:campus_nord_vending) # carla's
     assert_difference -> { note.reload.views_count }, 1 do
       get note_path(note)
     end
+  end
+
+  test "show does not increment views_count when the owner reads their own note" do
+    own = notes(:placa_reial_lampposts) # alice's
+    assert_no_difference -> { own.reload.views_count } do
+      get note_path(own)
+    end
+  end
+
+  test "show does not archive the owner's last-view note" do
+    own = notes(:placa_reial_lampposts) # alice's
+    own.update!(max_views: 1, views_count: 0)
+
+    get note_path(own)
+    assert_response :success
+
+    own.reload
+    assert_equal 0, own.views_count
+    assert_not own.archived?
   end
 
   test "show does not render the bottom tab bar" do
@@ -282,5 +307,115 @@ class NotesControllerTest < ActionDispatch::IntegrationTest
     get note_path(notes(:placa_reial_lampposts))
     # Both lifecycle bars present: fades_in + reads_left.
     assert_select ".bg-bg-deep .bg-accent", minimum: 2
+  end
+
+  test "show renders an archive button on the user's own note" do
+    own = notes(:placa_reial_lampposts) # alice's
+    get note_path(own)
+    assert_select "form[action=?][method=post]", note_path(own) do
+      assert_select "input[name=_method][value=delete]", true
+      assert_select "button", text: /#{I18n.t('detail.archive.cta')}/i
+    end
+  end
+
+  test "show does not render an archive button on someone else's note" do
+    other = notes(:campus_nord_vending) # carla's
+    get note_path(other)
+    assert_select "button", text: /#{I18n.t('detail.archive.cta')}/i, count: 0
+  end
+
+  test "show replaces the report button with archive on the user's own note" do
+    own = notes(:placa_reial_lampposts) # alice's
+    get note_path(own)
+    assert_select "button[disabled]", text: /#{I18n.t('detail.report')}/i, count: 0
+  end
+
+  # ── #destroy (manual archive) ─────────────────────────────────
+
+  test "destroy archives the user's own note and redirects to /map with flash" do
+    own = notes(:placa_reial_lampposts) # alice's
+    delete note_path(own)
+    assert_redirected_to map_path
+    assert_match(/archiv/i, flash[:notice])
+    assert own.reload.archived?
+  end
+
+  test "destroy returns 404 for a note owned by someone else" do
+    other = notes(:campus_nord_vending) # carla's
+    delete note_path(other)
+    assert_response :not_found
+    assert_not other.reload.archived?
+  end
+
+  test "destroy returns 404 for a non-existent id" do
+    delete note_path(99_999)
+    assert_response :not_found
+  end
+
+  test "destroy requires authentication" do
+    own = notes(:placa_reial_lampposts)
+    delete session_path
+    delete note_path(own)
+    assert_redirected_to new_session_path
+    assert_not own.reload.archived?
+  end
+
+  test "destroy redirects users without onboarded_at to /welcome" do
+    own = notes(:placa_reial_lampposts)
+    @user.update!(onboarded_at: nil)
+    delete note_path(own)
+    assert_redirected_to welcome_path
+    assert_not own.reload.archived?
+  end
+
+  test "archived notes do not appear in nearby" do
+    archived = notes(:archived_projector) # alice's, archived: true, no view-cap reason to exclude
+    get nearby_notes_path(format: :json),
+        params: { lat: archived.latitude.to_f, lng: archived.longitude.to_f, radius: 5_000 }
+    ids = JSON.parse(response.body)["notes"].map { |n| n["id"] }
+    assert_not_includes ids, archived.id
+  end
+
+  test "archived notes return 404 on show for non-authors" do
+    # archived_projector is alice's; the owner-trail exception means alice
+    # can still read it. Anyone else gets 404.
+    sign_in_as(users(:carla))
+    archived = notes(:archived_projector)
+    get note_path(archived)
+    assert_response :not_found
+  end
+
+  # ── Owner trail access to inactive notes ──────────────────────
+
+  test "show lets the author read their own archived note from the trail" do
+    archived = notes(:archived_projector) # alice's
+    get note_path(archived)
+    assert_response :success
+    assert_select "[data-note-status=archived]"
+    assert_select ".text-accent", text: /#{I18n.t('detail.status.archived')}/i
+  end
+
+  test "show lets the author read their own expired note from the trail" do
+    expired = notes(:expired_brunch) # alice's, expires_at in the past
+    get note_path(expired)
+    assert_response :success
+    assert_select "[data-note-status=expired]"
+  end
+
+  test "show does not increment views_count when the owner reads an inactive note" do
+    archived = notes(:archived_projector)
+    assert_no_difference -> { archived.reload.views_count } do
+      get note_path(archived)
+    end
+  end
+
+  test "show does not render the archive button on an already-inactive own note" do
+    archived = notes(:archived_projector) # alice's
+    get note_path(archived)
+    assert_response :success
+    # No POST form to /notes/:id (the archive submit) on an already
+    # archived note — owners must not be able to "re-archive".
+    assert_select "form[action=?][method=post]", note_path(archived), count: 0
+    assert_select "button[disabled]", text: /#{I18n.t('detail.status.locked')}/i
   end
 end

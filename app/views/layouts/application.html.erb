@@ -10,7 +10,7 @@
 
     <%= yield :head %>
 
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="<%= pwa_manifest_path(format: :json) %>">
     <link rel="icon" type="image/svg+xml" href="<%= asset_path("logos/monogram-g/favicon.svg") %>">
     <link rel="icon" type="image/png" sizes="16x16"  href="<%= asset_path("logos/monogram-g/favicon-16.png") %>">
     <link rel="icon" type="image/png" sizes="32x32"  href="<%= asset_path("logos/monogram-g/favicon-32.png") %>">
@@ -26,6 +26,7 @@
     <%= stylesheet_link_tag "leaflet", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    <%= render "layouts/pwa_register" %>
   </head>
 
   <body class="min-h-screen bg-bg text-ink font-serif antialiased">
@@ -33,8 +34,18 @@
     <% if global_flash.any? %>
       <div class="fixed inset-x-0 top-4 z-50 mx-auto flex max-w-md flex-col gap-2 px-4">
         <% global_flash.each do |type, message| %>
-          <div class="rounded-button border border-card-edge bg-card px-4 py-3 text-sm shadow-card <%= type.to_s == "alert" ? "text-accent" : "text-ink-soft" %>">
-            <%= message %>
+          <div data-controller="flash"
+               role="status"
+               class="gw-flash flex items-center gap-3 rounded-button border border-card-edge bg-card px-4 py-3 text-sm shadow-card <%= type.to_s == "alert" ? "text-accent" : "text-ink-soft" %>">
+            <span class="flex-1"><%= message %></span>
+            <button type="button"
+                    data-action="click->flash#close"
+                    aria-label="<%= t("flash.dismiss") %>"
+                    class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-ink-faint hover:bg-bg-deep">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="M6 6l12 12M18 6L6 18"/>
+              </svg>
+            </button>
           </div>
         <% end %>
       </div>

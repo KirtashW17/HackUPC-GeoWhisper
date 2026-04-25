@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80" role="img" aria-label="GeoWhisper · Folded note">
+  <path d="M16 14 L 56 14 L 64 22 L 64 60 L 16 60 Z" fill="#f5efe4" stroke="#2a2118" stroke-width="3" stroke-linejoin="round"></path>
+  <path d="M56 14 L 56 22 L 64 22" fill="none" stroke="#2a2118" stroke-width="3" stroke-linejoin="round"></path>
+  <path d="M24 32 Q 32 30, 40 32 T 56 32" stroke="#2a2118" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.7"></path>
+  <path d="M24 42 Q 30 40, 38 42 T 50 42" stroke="#2a2118" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.5"></path>
+  <circle cx="40" cy="70" r="3.4" fill="#b6552c"></circle>
+</svg>

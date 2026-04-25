@@ -17,11 +17,12 @@ Rails.application.routes.draw do
   get  "/welcome", to: "welcome#show",     as: :welcome
   post "/welcome", to: "welcome#complete", as: :complete_onboarding
   get  "/map",     to: "map#show",         as: :map
+  get  "/yourself", to: "yourself#show",   as: :yourself
 
   # Notes — JSON nearby feed for the map and the compose/detail surface.
   # See doc/plans/phase_2_map_and_compose.md.
   get  "/notes/nearby", to: "notes#nearby", as: :nearby_notes, defaults: { format: :json }
-  resources :notes, only: %i[new create show]
+  resources :notes, only: %i[new create show destroy]
 
   root "sessions#new"
 end

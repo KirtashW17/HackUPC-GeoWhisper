@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80" role="img" aria-label="GeoWhisper">
+  <path d="M40 6 C 24 6, 12 18, 12 33 C 12 46, 24 56, 28 64 L 28 70 Q 30 73, 32 70 L 32 67 Q 34 71, 36 67 L 36 70 Q 38 73, 40 70 L 40 67 Q 42 71, 44 67 L 44 70 Q 46 73, 48 70 L 48 64 C 56 56, 68 46, 68 33 C 68 18, 56 6, 40 6 Z" fill="#2a2118"></path>
+  <circle cx="33" cy="30" r="2.4" fill="#f5efe4"></circle>
+  <circle cx="47" cy="30" r="2.4" fill="#f5efe4"></circle>
+</svg>

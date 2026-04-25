@@ -72,8 +72,11 @@ archived_projector:
   latitude: 41.2234
   longitude: 1.7290
   expires_at: <%= 6.hours.from_now.iso8601 %>
-  max_views: 3
-  views_count: 3
+  # max_views nil + views_count 0: the only reason this note must be excluded
+  # from the active feed is the archived flag, so tests that target the flag
+  # are unambiguous.
+  max_views:
+  views_count: 0
   language: es
   visibility: 0
   archived: true

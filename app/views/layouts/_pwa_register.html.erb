@@ -1,0 +1,11 @@
+<%# Registers the service worker so browsers consider the app installable. %>
+<%# The SW itself is intentionally minimal (see app/views/pwa/service-worker.js); %>
+<%# its presence — not its behavior — is what unlocks the install prompt. %>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("<%= j pwa_service_worker_path(format: :js) %>")
+        .catch(function (error) { console.warn("[pwa] SW registration failed", error); });
+    });
+  }
+</script>

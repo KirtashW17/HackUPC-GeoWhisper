@@ -122,12 +122,35 @@
 
 ---
 
+## Fase 4 bis — Clustering del mapa *(completada)*
+
+> Agrupar pins que caen a < 40 px en pantalla en un *stack de papelitos* +
+> bottom sheet. Resolver el solapamiento con el pin "You are here" con un
+> badge esquinero. Detalle en
+> [`plans/phase_3_clustering.md`](plans/phase_3_clustering.md). Optimización
+> y reverse geocoding aplazados a [`future.md`](future.md).
+
+- [X] CSS `.gw-pin-cluster` (3 capas + corner-fold + count + anchor dot, sm/lg) y `.gw-pin-here__badge`
+- [X] CSS `.gw-cluster-sheet`, `.gw-cluster-overlay`, `.gw-cluster-sheet__close` con animación `gw-slide-up` (220 ms) + `gw-fade-in` (180 ms)
+- [X] Vista `/map` con targets nuevos (`overlay`, `sheet`, `sheetEyebrow`, `sheetList`, `closePill`) y claves i18n del cluster en el `data-map-i18n-value`
+- [X] `map_controller.js`: `clusterize()` greedy O(n²) con threshold `CLUSTER_THRESHOLD_PX = 40`, separa here-cluster del resto, ancla cada grupo en su primera nota
+- [X] Re-cluster en `zoomend` / `moveend`
+- [X] Singles → `gw-pin` (navegan a `/notes/:id`); clusters ≥ 2 → `gw-pin-cluster` (abren sheet)
+- [X] Here-cluster: badge esquinero sobre `gw-pin-here` con contador (`N`, `9+`, `99+`); tap abre sheet con eyebrow `Right where you stand`
+- [X] Bottom sheet open/close: tap en row navega; cierre via overlay, pill `Close stack` o tecla `Escape`
+- [X] Peek inteligente: si la nota más cercana cae en un cluster, el peek se sustituye por `N whispers · Xm` y abre el sheet en lugar de navegar
+- [X] i18n: `map.cluster.{eyebrow.{one,other},here_eyebrow,distance_away,close,peek.{one,other}}` en en/es/ca con paridad
+- [X] Test de integración (`MapControllerTest`) que verifica la presencia de los nuevos targets y de las claves i18n del cluster en el HTML
+- [X] `bin/rails test` 126/126 verde, `bin/rubocop` limpio, `bin/brakeman` sin alertas accionables
+
+---
+
 ## Fase 5 — Visualización y expiración
 
 - [ ] `NotesController#show` que llama a `note.view!` y renderiza
 - [ ] Si `view!` deja la nota muerta → mostrar contenido pero marcar "this note has just vanished" (i18n)
-- [ ] Job recurrente (SolidQueue cuando entre, o Active Job programado) que purga `Note.where("expires_at < ? OR views_count >= max_views", Time.current)`
-- [ ] Tests del job + tests de expiración por tiempo y por views
+- [X] Job (`Notes::ArchiveExpiredJob`) que archiva (`archived = true`) las notas con `expires_at < now` o `views_count >= max_views` — programación periódica pendiente (ver `doc/next-steps.md`)
+- [X] Tests del job + tests de expiración por tiempo y por views
 
 ---
 
@@ -140,6 +163,55 @@
 - [ ] Mensajes de error amables (permiso denegado, sin GPS, etc.) i18n
 - [ ] PWA: añadir al home screen, offline básico
 - [ ] Mockup de errores de formulario (Claude Design) integrado *(ver `next-steps.md`)*
+
+---
+
+## Fase 7 — Yourself (perfil) + archivado *(completada)*
+
+> Pantalla de perfil replicando `prototype/profile-with-signout.jsx`
+> (`SettingsScreen`, eyebrow + título "Yourself", tarjeta de identidad,
+> secciones LANGUAGES / PRESENCE / YOUR TRAIL, frase manuscrita al pie),
+> archivado de notas propias y cierre de sesión. Detalle en
+> [`plans/phase_7_yourself_and_archive.md`](plans/phase_7_yourself_and_archive.md).
+>
+> El trail incluye **toda** la historia del usuario (vivas, archivadas y
+> expiradas) — sólo `Note.active` excluye archivadas/expiradas, no la
+> consulta del trail. Decisión documentada en el plan (D-7).
+
+### Pantalla `/yourself`
+
+- [X] Ruta `GET /yourself` → `YourselfController#show`, gateado por auth + onboarded
+- [X] Vista mobile-first replicando `SettingsScreen` (header con eyebrow `@<usuario>`, tarjeta de identidad con avatar-monograma + nombre + contador, secciones LANGUAGES / PRESENCE / YOUR TRAIL, frase `be quiet, be here.` al pie)
+- [X] Tarjeta de identidad: avatar circular con la inicial del email, contador `N lanzadas · M vivas` (donde *vivas* = `user.notes.active.count`)
+- [X] Sección LANGUAGES: row "Show whispers in" deshabilitada (badge `SOON`); row "Interface" con chip group EN/ES/CA que envía PATCH a `/locale` reusando `LocalesController#update`
+- [X] Sección PRESENCE: row "Search radius" **deshabilitada** con badge `SOON` (placeholder `1 km`); rows "Notify me when nearby" y "Anonymous mode" deshabilitadas
+- [X] Sección YOUR TRAIL: todas las notas del usuario ordenadas por `created_at desc`, con dot terracota si vivas / inkFaint atenuado si archivadas/expiradas, meta-line `<distancia? · alive · X/Y reads>`, `archived · X/Y reads` o `vanished N days ago`
+- [X] Tap en cualquier row del trail navega a `/notes/:id` (con `lat`/`lng` del visor si existen)
+- [X] Logout: botón al pie con `button_to DELETE /session`, estilo destructivo suave
+- [X] Tab bar: slot `me` enlazado a `/yourself` (sin badge SOON), marcado activo cuando estamos en la pantalla
+
+### Archivado de notas propias
+
+- [X] `NotesController#show`: si `current_user == note.user`, sustituye el botón "Report" por **Archive** con `data-turbo-confirm`
+- [X] `NotesController#destroy` (`DELETE /notes/:id`) → `note.archive!`, redirige a `/map` con flash `t("detail.archive.success")`
+- [X] Autorización: 404 si `current_user != note.user` (no se filtra existencia de notas ajenas)
+- [X] `Note.active` filtra `archived: false` (bug latente arreglado): nota archivada queda fuera de `/notes/nearby` y de su propio `/notes/:id`
+- [X] Tests del controller: ruta, autorización, efecto en `nearby`, idempotencia
+
+### i18n
+
+- [X] Claves nuevas `yourself.*` y `detail.archive.*` en `config/locales/{en,es,ca}.yml` con paridad
+- [X] `I18nParityTest` verde
+
+### Tests
+
+- [X] `YourselfControllerTest` (14 casos) — auth/onboarded gate, render, contadores correctos, trail con archivadas+expiradas+vivas, orden `created_at desc`, distancia condicionada a coords del visor, sign-out form, search radius con SOON, chip group de idiomas, empty state
+- [X] `NotesControllerTest` — botón Archive visible solo al dueño, `#destroy` ok / 404 / 401, efecto en `nearby` y en `show`, archivadas devuelven 404 en show
+- [X] `bin/rails test` 164/164 verde · `bin/rubocop` limpio · `bin/brakeman` sin alertas nuevas
+
+### Plan detallado
+
+- [X] [`doc/plans/phase_7_yourself_and_archive.md`](plans/phase_7_yourself_and_archive.md) escrito con todas las decisiones (naming del contador, markup del trail row sin distancia, UX del logout sin modal, empty state, reuso de `LocalesController`, autorización 404 vs 403, fix del scope `Note.active`)
 
 ---
 

@@ -1,0 +1,123 @@
+<%# /yourself — profile screen replicating prototype/profile-with-signout.jsx.
+    The trail is a complete personal history (alive + archived + vanished),
+    so it bypasses Note.active and uses the unscoped relation. %>
+<%
+  handle = @user.email.split("@").first
+  display_name = handle.capitalize
+%>
+<div class="relative mx-auto flex min-h-screen max-w-md flex-col bg-bg pb-28">
+  <%# Eyebrow + page title %>
+  <header class="px-[22px] pt-14">
+    <p class="font-mono text-[10px] uppercase tracking-eyebrow text-ink-soft">
+      <%= t("yourself.eyebrow", handle: handle.upcase) %>
+    </p>
+    <h1 class="mt-1 font-serif text-[34px] leading-tight text-ink">
+      <%= t("yourself.title") %>
+    </h1>
+  </header>
+
+  <main class="flex-1 px-[18px] pt-1.5">
+    <%# Identity card %>
+    <section class="mt-3 flex items-center gap-3.5 rounded-sheet border border-card-edge bg-card p-4 shadow-card"
+             aria-label="<%= t("yourself.title") %>">
+      <div class="flex h-14 w-14 items-center justify-center rounded-full border border-card-edge bg-accent-soft font-serif text-2xl font-semibold text-accent">
+        <%= handle.first.upcase %>
+      </div>
+      <div class="flex-1">
+        <p class="font-serif text-lg font-semibold text-ink"><%= display_name %></p>
+        <p class="mt-0.5 font-mono text-[11px] tracking-eyebrow text-ink-soft">
+          <%= t("yourself.counter.dropped", count: @notes_dropped) %> ·
+          <%= t("yourself.counter.alive",   count: @notes_alive) %>
+        </p>
+      </div>
+    </section>
+
+    <%# LANGUAGES %>
+    <section aria-labelledby="yourself-languages-label">
+      <h2 id="yourself-languages-label" class="px-1.5 pb-2 pt-5 font-mono text-[10px] uppercase tracking-eyebrow text-ink-soft">
+        <%= t("yourself.sections.languages") %>
+      </h2>
+      <div class="overflow-hidden rounded-card border border-card-edge bg-card">
+        <%# whispers_in (disabled) %>
+        <div class="flex items-center gap-2.5 border-b border-card-edge px-4 py-3.5 opacity-55">
+          <span class="flex-1 font-serif text-[15px] text-ink"><%= t("yourself.rows.whispers_in") %></span>
+          <span class="rounded-sm bg-bg-deep px-1.5 py-0.5 font-mono text-[9px] font-semibold tracking-eyebrow text-ink-soft"><%= t("yourself.soon_badge") %></span>
+          <% I18n.available_locales.each do |loc| %>
+            <span class="rounded-sm bg-accent px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-eyebrow text-bg"><%= loc.to_s.upcase %></span>
+          <% end %>
+        </div>
+        <%# Interface — chip group, each chip is a button_to /locale %>
+        <div class="flex items-center gap-2.5 px-4 py-3.5">
+          <span class="flex-1 font-serif text-[15px] text-ink"><%= t("yourself.rows.interface") %></span>
+          <div class="flex gap-1">
+            <% I18n.available_locales.each do |loc| %>
+              <% active = I18n.locale.to_s == loc.to_s %>
+              <%= button_to loc.to_s.upcase,
+                    locale_path(locale: loc.to_s),
+                    method: :patch,
+                    form: { class: "inline" },
+                    class: "rounded-sm px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-eyebrow #{active ? 'bg-accent text-bg' : 'bg-bg-deep text-ink-soft'}" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <%# PRESENCE %>
+    <section aria-labelledby="yourself-presence-label">
+      <h2 id="yourself-presence-label" class="px-1.5 pb-2 pt-5 font-mono text-[10px] uppercase tracking-eyebrow text-ink-soft">
+        <%= t("yourself.sections.presence") %>
+      </h2>
+      <div class="overflow-hidden rounded-card border border-card-edge bg-card">
+        <%= render "presence_row", row: "search_radius",
+              title: t("yourself.rows.search_radius"),
+              value: t("yourself.placeholders.search_radius"), last: false %>
+        <%= render "presence_row", row: "notify",
+              title: t("yourself.rows.notify"),
+              value: t("yourself.placeholders.notify"), last: false %>
+        <%= render "presence_row", row: "anonymous",
+              title: t("yourself.rows.anonymous"),
+              value: t("yourself.placeholders.anonymous"), last: true %>
+      </div>
+    </section>
+
+    <%# YOUR TRAIL %>
+    <section aria-labelledby="yourself-trail-label">
+      <h2 id="yourself-trail-label" class="px-1.5 pb-2 pt-5 font-mono text-[10px] uppercase tracking-eyebrow text-ink-soft">
+        <%= t("yourself.sections.trail") %>
+      </h2>
+      <% if @trail.empty? %>
+        <div class="rounded-card border border-card-edge bg-card px-5 py-6 text-center font-hand text-lg text-ink-soft">
+          <%= t("yourself.trail.empty") %>
+        </div>
+      <% else %>
+        <div class="flex flex-col gap-2.5 rounded-card border border-card-edge bg-card px-4 py-3.5">
+          <% @trail.each do |note| %>
+            <%= render "trail_row", note: note, viewer_lat: @viewer_lat, viewer_lng: @viewer_lng %>
+          <% end %>
+        </div>
+      <% end %>
+    </section>
+
+    <%# Tagline %>
+    <p class="mt-7 mb-4 text-center font-hand text-lg text-ink-soft">
+      <%= t("yourself.tagline") %>
+    </p>
+
+    <%# Sign out %>
+    <%= button_to session_path,
+          method: :delete,
+          class: "inline-flex w-full items-center justify-center gap-2 rounded-card border border-card-edge bg-card px-4 py-3.5 font-sans text-[15px] font-medium tracking-wide text-accent" do %>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M15 6l-6 6 6 6"/>
+      </svg>
+      <%= t("yourself.sign_out") %>
+    <% end %>
+
+    <p class="mt-2 text-center font-mono text-[9px] uppercase tracking-eyebrow text-ink-faint">
+      <%= t("yourself.version_line", handle: "#{handle}@geowhisper".upcase) %>
+    </p>
+  </main>
+
+  <%= render "shared/tab_bar", active: :me %>
+</div>

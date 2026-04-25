@@ -19,6 +19,7 @@
 - [X] **Integrar `NotesController#create` con el modelo `Note`** — hecho en `phase_2_note_integration.md`. El controller usa `Note.active.nearby`, `Note.active.find_by`, `Note.create!`. ComposeForm alineado con el enum (`public_note/private_note/friends_only`).
 - [X] **Borrar `Notes::Catalog` stub** — `app/models/notes/{stub,catalog}.rb` y `test/models/notes/catalog_test.rb` eliminados.
 - [ ] **Configurar `i18n-tasks`** — gem ya instalada. Falta `config/i18n-tasks.yml` con paths de las locales y los `data` para detectar uso. Sustituir el test casero `I18nParityTest` por `bin/i18n-tasks health` en CI.
+- [ ] **Programación periódica de `Notes::ArchiveExpiredJob`** — el job ya existe (`app/jobs/notes/archive_expired_job.rb`) pero no se dispara solo. Cuando entre SolidQueue se añadirá un `recurring.yml`; mientras tanto se puede invocar a mano (`bin/rails runner "Notes::ArchiveExpiredJob.perform_now"`) o vía cron de sistema. Decidir cadencia (probable: cada 5–10 min).
 - [ ] **Verificar pipeline CI** — tras añadir auth, i18n y Tailwind, asegurarse de que los 4 jobs siguen verdes (`brakeman`, `importmap audit`, `rubocop`, `tests`).
 - [X] **HTTPS para testing en móvil** — flujo de `localhost.run` documentado en [`README.md`](../README.md) ("Probar la app desde un dispositivo móvil"). Setup más permanente con `mkcert` + Puma TLS sigue como nice-to-have post-hackathon.
 

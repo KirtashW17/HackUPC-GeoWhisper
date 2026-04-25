@@ -1,0 +1,63 @@
+<%# A single row inside YOUR TRAIL.
+    Renders alive notes with a terracotta dot, archived/vanished ones with a
+    faint ink dot and reduced opacity so the personal history stays scannable
+    in one glance. %>
+<%
+  expired_by_time  = note.expires_at.present?  && note.expires_at  <= Time.current
+  expired_by_views = note.max_views.present?   && note.views_count >= note.max_views
+
+  state = if note.archived?
+    "archived"
+  elsif expired_by_time || expired_by_views
+    "vanished"
+  else
+    "alive"
+  end
+
+  alive       = state == "alive"
+  dot_class   = alive ? "bg-accent" : "bg-ink-faint"
+  row_opacity = alive ? "" : "opacity-45"
+
+  reads = if note.max_views.nil?
+    t("yourself.trail.reads.unlimited")
+  else
+    t("yourself.trail.reads.capped", count: note.views_count, max: note.max_views)
+  end
+
+  distance =
+    if alive && viewer_lat && viewer_lng
+      note.distance_to_m(viewer_lat, viewer_lng)
+    end
+
+  meta_line =
+    case state
+    when "archived"
+      t("yourself.trail.meta.without_distance",
+        state: t("yourself.trail.meta.archived_label"),
+        reads: reads)
+    when "vanished"
+      reference = expired_by_time ? note.expires_at : note.updated_at
+      t("yourself.trail.meta.vanished_ago",
+        time: time_ago_in_words(reference))
+    else
+      if distance
+        t("yourself.trail.meta.with_distance",
+          distance: distance,
+          state: t("yourself.trail.meta.alive_label"),
+          reads: reads)
+      else
+        t("yourself.trail.meta.without_distance",
+          state: t("yourself.trail.meta.alive_label"),
+          reads: reads)
+      end
+    end
+%>
+<%= link_to note_path(note, lat: viewer_lat, lng: viewer_lng),
+      data: { "trail-row-id": note.id, "trail-row-state": state },
+      class: "flex items-start gap-2.5 #{row_opacity}" do %>
+  <span class="mt-2 inline-block h-1.5 w-1.5 shrink-0 rounded-full <%= dot_class %>" aria-hidden="true"></span>
+  <span class="min-w-0 flex-1">
+    <span class="block truncate font-serif text-sm text-ink"><%= note.content %></span>
+    <span class="mt-0.5 block font-mono text-[10px] tracking-eyebrow text-ink-soft"><%= meta_line %></span>
+  </span>
+<% end %>

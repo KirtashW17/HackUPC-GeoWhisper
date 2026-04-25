@@ -13,6 +13,29 @@
     <% end %>
   </div>
 
+  <%# Status banner — only rendered for inactive notes the owner is reading
+      from their trail. Tells them the note is no longer reachable from the
+      map but remains visible to them as personal history. %>
+  <% if @note.inactive? %>
+    <div class="mt-6 flex items-center gap-2.5 rounded-card border border-card-edge bg-bg-deep px-4 py-2.5"
+         data-note-status="<%= @note.vanished_reason %>">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+           class="text-ink-soft" aria-hidden="true">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 7v5l3 2"/>
+      </svg>
+      <div class="flex-1">
+        <p class="font-mono text-[10px] uppercase tracking-eyebrow text-accent">
+          <%= t("detail.status.#{@note.vanished_reason}") %>
+        </p>
+        <p class="mt-0.5 font-serif text-[13px] text-ink-soft">
+          <%= t("detail.status.body") %>
+        </p>
+      </div>
+    </div>
+  <% end %>
+
   <%# Eyebrow: "12M AWAY · LEFT 4H AGO" in accent red, with concentric-circles "near" icon. %>
   <div class="mt-7 flex items-center gap-2 font-mono text-[10px] uppercase tracking-eyebrow text-accent">
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
@@ -110,10 +133,26 @@
       </svg>
       <%= t("detail.whisper_back") %>
     </button>
-    <button type="button" disabled
-            class="cursor-not-allowed rounded-button border border-card-edge bg-card px-4 py-3 font-sans text-sm font-medium text-ink-soft opacity-55"
-            title="<%= t('nav.soon') %>">
-      <%= t("detail.report") %>
-    </button>
+    <% if @note.user_id == Current.user&.id && !@note.inactive? %>
+      <%= button_to t("detail.archive.cta"),
+            note_path(@note),
+            method: :delete,
+            data: { turbo_confirm: t("detail.archive.confirm") },
+            class: "rounded-button border border-card-edge bg-card px-4 py-3 font-sans text-sm font-medium text-ink-soft" %>
+    <% elsif @note.user_id == Current.user&.id && @note.inactive? %>
+      <%# Owner re-reading their own vanished/archived note from the trail.
+          Archive doesn't make sense (already inactive); show a locked label. %>
+      <button type="button" disabled
+              class="cursor-not-allowed rounded-button border border-card-edge bg-card px-4 py-3 font-sans text-sm font-medium text-ink-soft opacity-55"
+              title="<%= t("detail.status.#{@note.vanished_reason}") %>">
+        <%= t("detail.status.locked") %>
+      </button>
+    <% else %>
+      <button type="button" disabled
+              class="cursor-not-allowed rounded-button border border-card-edge bg-card px-4 py-3 font-sans text-sm font-medium text-ink-soft opacity-55"
+              title="<%= t('nav.soon') %>">
+        <%= t("detail.report") %>
+      </button>
+    <% end %>
   </div>
 </div>

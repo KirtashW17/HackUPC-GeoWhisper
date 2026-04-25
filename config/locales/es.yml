@@ -95,12 +95,20 @@ es:
         body: Sé el primero en dejar un susurro.
       meta:
         closest: el más cercano
-        time_left_one: "queda %{count}m"
-        time_left_hour: "quedan %{hours}h %{minutes}m"
-        time_left_day: "quedan %{days}d %{hours}h"
-        time_left_unlimited: "sin límite de tiempo"
-        views_left: "%{remaining} de %{max} lecturas"
-        views_left_unlimited: "lecturas ilimitadas"
+        time_ago_now: "ahora mismo"
+        time_ago_minutes: "hace %{count}m"
+        time_ago_hours: "hace %{count}h"
+        time_ago_days: "hace %{count}d"
+    cluster:
+      eyebrow:
+        one: "1 susurro aquí"
+        other: "%{count} susurros aquí"
+      here_eyebrow: "Justo donde estás"
+      distance_away: "a %{meters}m"
+      close: Cerrar pila
+      peek:
+        one: "1 susurro · %{meters}m"
+        other: "%{count} susurros · %{meters}m"
     denied:
       eyebrow: Necesitamos tu ubicación
       headline:
@@ -172,8 +180,61 @@ es:
       unlimited: Lecturas ilimitadas
     whisper_back: Responder al susurro
     report: Reportar
+    archive:
+      cta: Archivar
+      confirm: Este susurro desaparecerá para siempre. ¿Continuar?
+      success: Susurro archivado.
+    status:
+      archived: Archivado
+      expired: Expirado
+      exhausted: Sin lecturas
+      locked: Bloqueado
+      body: "Solo tú puedes ver esto. Ya no aparece en el mapa."
     not_found:
       title: Este susurro se ha desvanecido.
       body: Puede que se haya quedado sin lecturas o que esté fuera del radio. Prueba el mapa.
+  yourself:
+    title: Tú
+    eyebrow: "@%{handle}"
+    counter:
+      dropped:
+        one: "1 lanzada"
+        other: "%{count} lanzadas"
+      alive:
+        one: "1 viva"
+        other: "%{count} vivas"
+    sections:
+      languages: IDIOMAS
+      presence: PRESENCIA
+      trail: TU RASTRO
+    rows:
+      whispers_in: Mostrar susurros en
+      interface: Interfaz
+      search_radius: Radio de búsqueda
+      notify: Avísame si hay alguno cerca
+      anonymous: Modo anónimo
+    placeholders:
+      search_radius: 1 km
+      notify: A veces
+      anonymous: Desactivado
+    soon_badge: PRONTO
+    trail:
+      empty: "Aún no has dejado ningún susurro — el mundo está callado desde aquí."
+      meta:
+        archived_label: archivada
+        alive_label: viva
+        with_distance: "%{distance}m · %{state} · %{reads}"
+        without_distance: "%{state} · %{reads}"
+        vanished_ago: "se desvaneció hace %{time}"
+      reads:
+        capped:
+          one: "%{count}/%{max} lectura"
+          other: "%{count}/%{max} lecturas"
+        unlimited: lecturas ilimitadas
+    sign_out: Cerrar sesión
+    tagline: "calla, quédate aquí."
+    version_line: "v 0.1 · %{handle}"
+  flash:
+    dismiss: Cerrar
   errors:
     forbidden: Debes iniciar sesión primero.

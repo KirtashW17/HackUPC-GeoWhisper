@@ -95,12 +95,20 @@ ca:
         body: Sigues el primer a deixar un xiuxiueig.
       meta:
         closest: el més proper
-        time_left_one: "queden %{count}m"
-        time_left_hour: "queden %{hours}h %{minutes}m"
-        time_left_day: "queden %{days}d %{hours}h"
-        time_left_unlimited: "sense límit de temps"
-        views_left: "%{remaining} de %{max} lectures"
-        views_left_unlimited: "lectures il·limitades"
+        time_ago_now: "ara mateix"
+        time_ago_minutes: "fa %{count}m"
+        time_ago_hours: "fa %{count}h"
+        time_ago_days: "fa %{count}d"
+    cluster:
+      eyebrow:
+        one: "1 xiuxiueig aquí"
+        other: "%{count} xiuxiuejos aquí"
+      here_eyebrow: "Just on et trobes"
+      distance_away: "a %{meters}m"
+      close: Tancar pila
+      peek:
+        one: "1 xiuxiueig · %{meters}m"
+        other: "%{count} xiuxiuejos · %{meters}m"
     denied:
       eyebrow: Cal la ubicació
       headline:
@@ -172,8 +180,61 @@ ca:
       unlimited: Lectures il·limitades
     whisper_back: Respon el xiuxiueig
     report: Denuncia
+    archive:
+      cta: Arxiva
+      confirm: Aquest xiuxiueig desapareixerà per sempre. Continuar?
+      success: Xiuxiueig arxivat.
+    status:
+      archived: Arxivat
+      expired: Expirat
+      exhausted: Sense lectures
+      locked: Bloquejat
+      body: "Només tu pots veure això. Ja no apareix al mapa."
     not_found:
       title: Aquest xiuxiueig s'ha esvaït.
       body: Potser ha exhaurit les lectures o queda fora del radi. Prova el mapa.
+  yourself:
+    title: Tu
+    eyebrow: "@%{handle}"
+    counter:
+      dropped:
+        one: "1 llançada"
+        other: "%{count} llançades"
+      alive:
+        one: "1 viva"
+        other: "%{count} vives"
+    sections:
+      languages: IDIOMES
+      presence: PRESÈNCIA
+      trail: EL TEU RASTRE
+    rows:
+      whispers_in: Mostra xiuxiuejos en
+      interface: Interfície
+      search_radius: Radi de cerca
+      notify: Avisa'm si n'hi ha a prop
+      anonymous: Mode anònim
+    placeholders:
+      search_radius: 1 km
+      notify: A vegades
+      anonymous: Desactivat
+    soon_badge: AVIAT
+    trail:
+      empty: "Encara no has deixat cap xiuxiueig — el món està en silenci des d'aquí."
+      meta:
+        archived_label: arxivada
+        alive_label: viva
+        with_distance: "%{distance}m · %{state} · %{reads}"
+        without_distance: "%{state} · %{reads}"
+        vanished_ago: "es va esvair fa %{time}"
+      reads:
+        capped:
+          one: "%{count}/%{max} lectura"
+          other: "%{count}/%{max} lectures"
+        unlimited: lectures il·limitades
+    sign_out: Tanca la sessió
+    tagline: "calla, queda't aquí."
+    version_line: "v 0.1 · %{handle}"
+  flash:
+    dismiss: Tanca
   errors:
     forbidden: Has d'iniciar sessió primer.

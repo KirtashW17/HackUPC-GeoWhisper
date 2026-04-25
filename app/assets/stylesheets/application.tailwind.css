@@ -25,7 +25,7 @@
     @apply absolute left-1/2 top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ghost ring-[3px] ring-bg;
   }
   .gw-pin-here__pulse {
-    @apply absolute left-1/2 top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ghost/40;
+    @apply absolute left-1/2 top-1/2 h-[2.275rem] w-[2.275rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-ghost/40;
     animation: gw-pulse-here 2s ease-out infinite;
   }
 
@@ -38,6 +38,91 @@
   .gw-pin__pulse {
     @apply absolute left-1/2 top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/40;
     animation: gw-pulse-here 2.4s ease-out infinite;
+  }
+
+  /* Cluster mark — three stacked paper layers + count on top.
+   * Sized 40×40 by default, 52×52 when count >= 10.
+   * Layers are absolute spans; tilts and offsets mirror the prototype
+   * (prototype/cluster-components.jsx). */
+  .gw-pin-cluster {
+    @apply pointer-events-auto relative cursor-pointer;
+    width: 40px; height: 40px;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.18));
+    transition: filter 180ms ease, transform 180ms ease;
+  }
+  .gw-pin-cluster:hover,
+  .gw-pin-cluster--active {
+    filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.25));
+    transform: scale(1.05);
+  }
+  .gw-pin-cluster--lg { width: 52px; height: 52px; }
+  .gw-pin-cluster__layer {
+    @apply absolute inset-0 rounded-[6px] border border-card-edge;
+    background: #f3ead8;
+  }
+  .gw-pin-cluster__layer--bottom { transform: translate(-3px, 3px) rotate(-7deg); background: #f3ead8; }
+  .gw-pin-cluster__layer--mid    { transform: translate( 3px, 1px) rotate( 4deg); background: #fbf3e0; }
+  .gw-pin-cluster__layer--top {
+    @apply flex items-center justify-center bg-card;
+    transform: translate(0, -2px) rotate(-2deg);
+  }
+  .gw-pin-cluster__fold {
+    @apply absolute right-0 top-0 bg-bg-deep;
+    width: 9px; height: 9px;
+    clip-path: polygon(100% 0, 0 0, 100% 100%);
+  }
+  .gw-pin-cluster__count {
+    @apply font-serif font-semibold text-ink;
+    font-size: 16px;
+    line-height: 1;
+    letter-spacing: -0.3px;
+  }
+  .gw-pin-cluster--lg .gw-pin-cluster__count { font-size: 14px; }
+  .gw-pin-cluster__anchor {
+    @apply absolute left-1/2 -translate-x-1/2 rounded-full bg-accent ring-2 ring-bg;
+    bottom: -5px;
+    width: 5px; height: 5px;
+  }
+
+  /* Here-cluster badge — small terracotta circle adosada a la esquina
+   * superior-derecha del pin "you are here". Visualmente claro pero sin
+   * pisar el pulso. Pointer-events on so the badge is tappable while
+   * the dot underneath stays inert. */
+  .gw-pin-here__badge {
+    @apply pointer-events-auto absolute flex items-center justify-center rounded-full bg-accent font-mono font-semibold text-bg ring-2 ring-bg cursor-pointer;
+    top: -6px; right: -6px;
+    min-width: 18px; height: 18px; padding: 0 5px;
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: 0.2px;
+    box-shadow: 0 2px 6px -1px rgba(182, 85, 44, 0.55);
+  }
+
+  /* Bottom sheet for clusters. Slides up from the bottom; the overlay
+   * dims the rest of the map. Both are toggled via [hidden] from
+   * map_controller.js. */
+  .gw-cluster-overlay {
+    @apply fixed inset-0 z-30 bg-ink/30;
+    animation: gw-fade-in 180ms ease-out;
+  }
+  .gw-cluster-sheet {
+    @apply fixed inset-x-0 bottom-0 z-40 mx-auto flex max-h-[68vh] max-w-md flex-col rounded-t-sheet bg-bg pb-8 shadow-[0_-20px_40px_-20px_rgba(0,0,0,0.25)];
+    animation: gw-slide-up 220ms ease-out;
+  }
+  .gw-cluster-sheet__handle {
+    @apply mx-auto mb-3 mt-2 h-1 w-9 rounded-full bg-ink-faint/50;
+  }
+  .gw-cluster-sheet__header {
+    @apply px-5 pb-3 pt-1;
+  }
+  .gw-cluster-sheet__eyebrow {
+    @apply font-mono text-[10px] uppercase tracking-eyebrow text-accent;
+  }
+  .gw-cluster-sheet__list {
+    @apply flex flex-1 flex-col gap-2.5 overflow-y-auto px-5 pt-1;
+  }
+  .gw-cluster-sheet__close {
+    @apply pointer-events-auto fixed left-1/2 top-14 z-40 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-card-edge bg-card px-4 py-2 font-mono text-[10px] uppercase tracking-eyebrow text-ink-soft shadow-[0_4px_12px_rgba(0,0,0,0.06)];
   }
 
   .gw-loading-pulse {
@@ -94,6 +179,38 @@
 @keyframes gw-pulse-soft {
   0%, 100% { opacity: 0.45; transform: scale(0.9); }
   50%      { opacity: 1;    transform: scale(1.2); }
+}
+
+@keyframes gw-slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes gw-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Flash banner — small slide-in on render and slide/fade-out on dismiss
+ * (auto-timer or explicit close). The Stimulus controller toggles
+ * `.gw-flash--leaving` to trigger the exit transition before removing
+ * the node. Touch drag/translate is applied inline on `.element.style`
+ * so it doesn't fight with these classes. */
+@layer components {
+  .gw-flash {
+    touch-action: pan-y;
+    transition: transform 220ms ease-out, opacity 220ms ease-out;
+    animation: gw-flash-in 220ms ease-out;
+  }
+  .gw-flash--leaving {
+    transform: translateY(-12px);
+    opacity: 0;
+  }
+}
+
+@keyframes gw-flash-in {
+  from { transform: translateY(-12px); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
 }
 
 /* ── Leaflet skin · Soft & Paper ───────────────────────────────────

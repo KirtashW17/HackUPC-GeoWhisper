@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80" role="img" aria-label="GeoWhisper · Ink-pin">
+  <path d="M40 8 C 22 8, 10 22, 10 36 C 10 52, 30 64, 40 74 C 50 64, 70 52, 70 36 C 70 22, 58 8, 40 8 Z" fill="none" stroke="#2a2118" stroke-width="3.2" stroke-linejoin="round"></path>
+  <ellipse cx="40" cy="36" rx="9" ry="10" fill="#b6552c"></ellipse>
+  <circle cx="36.5" cy="32.5" r="2.2" fill="#f5efe4" opacity="0.55"></circle>
+</svg>

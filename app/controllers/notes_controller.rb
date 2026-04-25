@@ -60,23 +60,44 @@ class NotesController < ApplicationController
     render :new, status: :unprocessable_entity
   end
 
-  # Detail view for a single whisper. Responds with +404 Not Found+ when no
-  # active note matches the requested id (gone forever once expired or
-  # over-capped — the +active+ scope hides it).
+  # Detail view for a single whisper.
   #
-  # Calls +view!+ on the note, which increments +views_count+ and archives
-  # it once it reaches +max_views+.
+  # Visibility rules:
+  # * Active notes are visible to anyone authenticated.
+  # * Inactive notes (manually archived or beyond their time/views budget)
+  #   are visible only to their author — accessed from the personal trail
+  #   on +/yourself+. Everybody else gets +404+ so the existence of the
+  #   note isn't leaked.
+  #
+  # +view!+ is only called on active notes; reading a vanished note from
+  # the trail must not bump counters or trigger archival side-effects.
+  # Owner reads are also a no-op inside +view!+ (see {Note#view!}).
   #
   # @return [void]
   def show
-    @note = Note.active.find_by(id: params[:id])
+    @note = Note.find_by(id: params[:id])
     return head :not_found unless @note
+    return head :not_found if @note.inactive? && @note.user_id != Current.user&.id
 
-    @note.view!
+    @note.view!(viewer: Current.user) unless @note.inactive?
 
     lat = numeric_param(:lat, range: -90.0..90.0)
     lng = numeric_param(:lng, range: -180.0..180.0)
     @note.distance_m = @note.distance_to_m(lat, lng) if lat && lng
+  end
+
+  # Soft-delete a whisper: marks it archived so it disappears from the
+  # nearby feed and from its own detail page. Only the note's author can
+  # archive it; any other caller sees +404 Not Found+ (no information
+  # leaked about the note's existence).
+  #
+  # @return [void]
+  def destroy
+    @note = Note.find_by(id: params[:id], user: Current.user)
+    return head :not_found unless @note
+
+    @note.archive!
+    redirect_to map_path, notice: t("detail.archive.success")
   end
 
   private

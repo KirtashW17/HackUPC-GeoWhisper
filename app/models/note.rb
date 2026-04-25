@@ -26,21 +26,73 @@ class Note < ApplicationRecord
   validates :content, length: { in: 1..500 }, presence: true
   validates :expires_at, numericality: { greater_than_or_equal_to: ->(note) { note.created_at || DateTime.current } }, allow_nil: true
 
-  scope :active, -> { where("expires_at IS NULL OR expires_at > ?", DateTime.current).where("max_views IS NULL OR views_count < max_views") }
+  scope :active, -> {
+    where(archived: false)
+      .where("expires_at IS NULL OR expires_at > ?", DateTime.current)
+      .where("max_views IS NULL OR views_count < max_views")
+  }
 
   # Per-result virtual attribute populated by {.nearby}. Not persisted.
   # Pollutes the AR record with view state; accepted as tech debt while we
   # don't have a dedicated presenter (see +doc/future.md+).
   attr_accessor :distance_m
 
-  def view!
+  # Register a view of this note, bumping +views_count+ and archiving the
+  # note when it reaches +max_views+.
+  #
+  # No-ops in two cases:
+  # 1. Private notes (delivery semantics for those will be defined later;
+  #    counting reads on them is meaningless today).
+  # 2. The viewer is the note's own author. Authors re-read their own
+  #    whispers when checking on them or when navigating from their trail;
+  #    those reads must not consume the budget or archive the note.
+  #
+  # @param viewer [User, nil] the user reading the note, or +nil+ for
+  #   anonymous / system reads.
+  # @return [void]
+  def view!(viewer: nil)
     return if private_note?
+    return if viewer && viewer == user
 
     self.views_count += 1
     if max_views.present? && views_count >= max_views
       self.archived = true
     end
     save!
+  end
+
+  # Mark this note as archived. Archived notes are excluded from the
+  # +active+ scope, so they disappear from the nearby feed and from their
+  # own detail page. Used by the "archive" action on the detail screen.
+  #
+  # Idempotent: calling on an already-archived note is a no-op.
+  #
+  # @return [Boolean] +true+ on save, mirroring AR's +update!+ contract.
+  def archive!
+    update!(archived: true)
+  end
+
+  # True when the note is hidden from the public-facing nearby feed —
+  # either manually archived or beyond its time/views budget. Owners are
+  # still allowed to read these from their personal trail; everybody
+  # else gets +404+.
+  #
+  # @return [Boolean]
+  def inactive?
+    !vanished_reason.nil?
+  end
+
+  # Why the note is no longer active. Returned as a symbol so the view
+  # layer can pick the right i18n key without re-running the predicates.
+  #
+  # @return [Symbol, nil] +:archived+, +:expired+, +:exhausted+, or +nil+
+  #   when the note is still alive.
+  def vanished_reason
+    return :archived if archived?
+    return :expired  if expires_at.present? && expires_at <= Time.current
+    return :exhausted if max_views.present? && views_count >= max_views
+
+    nil
   end
 
   # Active notes around a coordinate, sorted by ascending distance, with
@@ -118,10 +170,24 @@ class Note < ApplicationRecord
     (EARTH_RADIUS_M * c).round
   end
 
+  # Seconds elapsed since the note was created. Snapshot at call time —
+  # the client formats it as "Xm/h/d ago" without recomputing against
+  # server clock drift.
+  #
+  # @return [Integer] floored at 0; +0+ for notes that have not been
+  #   persisted yet (no +created_at+).
+  def seconds_since_publication
+    return 0 if created_at.nil?
+
+    [ (Time.current - created_at).to_i, 0 ].max
+  end
+
   # Hash payload matching the JSON contract documented in
   # +doc/plans/phase_2_map_and_compose.md+ (consumed by the map's Stimulus
-  # controller). Raw +expires_at+ and +max_views+ stay server-side; the
-  # client only sees the derived +time_left_seconds+ / +views_remaining+.
+  # controller). Raw +expires_at+ stays server-side; the client receives
+  # +seconds_since_publication+ for the time chip and the raw
+  # +views_count+ / +max_views+ pair so it can render the +x/y+ ratio
+  # (with +max_views = nil+ meaning "unlimited", rendered as +∞+).
   #
   # @return [Hash{Symbol => Object}]
   def as_json_payload
@@ -132,8 +198,9 @@ class Note < ApplicationRecord
       longitude: longitude.to_f,
       distance_m: distance_m,
       language: language,
-      time_left_seconds: time_left_seconds,
-      views_remaining: views_remaining
+      seconds_since_publication: seconds_since_publication,
+      views_count: views_count,
+      max_views: max_views
     }
   end
 end

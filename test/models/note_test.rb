@@ -124,6 +124,30 @@ class NoteTest < ActiveSupport::TestCase
     assert note.private_note?
   end
 
+  test "view! is a no-op when the viewer is the author" do
+    note = Note.create!(valid_attrs(max_views: 1))
+
+    note.view!(viewer: @user)
+    assert_equal 0, note.views_count
+    assert_not note.archived?
+  end
+
+  test "view! still counts when the viewer is not the author" do
+    other = users(:bob)
+    note = Note.create!(valid_attrs(max_views: 1))
+
+    note.view!(viewer: other)
+    assert_equal 1, note.views_count
+    assert note.archived?
+  end
+
+  test "view! counts when no viewer is provided (backwards-compatible)" do
+    note = Note.create!(valid_attrs(max_views: 5))
+
+    note.view!
+    assert_equal 1, note.views_count
+  end
+
   test "active scope returns only active notes" do
     active_note = Note.create!(valid_attrs)
     expired_note = Note.create!(valid_attrs(expires_at: Time.current - 1.second))
@@ -133,6 +157,58 @@ class NoteTest < ActiveSupport::TestCase
     assert_includes Note.active, active_note
     assert_not_includes Note.active, expired_note
     assert_not_includes Note.active, maxed_out_note
+  end
+
+  test "active scope excludes archived notes" do
+    fresh   = Note.create!(valid_attrs)
+    archived = Note.create!(valid_attrs)
+    archived.archive!
+
+    assert_includes Note.active, fresh
+    assert_not_includes Note.active, archived
+  end
+
+  test "vanished_reason is nil for a fresh note" do
+    note = Note.create!(valid_attrs)
+    assert_nil note.vanished_reason
+    assert_not note.inactive?
+  end
+
+  test "vanished_reason is :archived after archiving" do
+    note = Note.create!(valid_attrs)
+    note.archive!
+    assert_equal :archived, note.vanished_reason
+    assert note.inactive?
+  end
+
+  test "vanished_reason is :expired when the deadline has passed" do
+    note = Note.create!(valid_attrs(expires_at: 1.hour.from_now))
+    note.update_column(:expires_at, 1.minute.ago)
+    assert_equal :expired, note.vanished_reason
+    assert note.inactive?
+  end
+
+  test "vanished_reason is :exhausted when views_count >= max_views" do
+    note = Note.create!(valid_attrs(max_views: 1))
+    note.view!
+    assert_equal :archived, note.vanished_reason,
+      "view! flips archived too; we hit :archived first by design"
+    # Edge case: max_views reached without archived flag (e.g. data fixed up
+    # by hand). Should still report :exhausted.
+    note.update_columns(archived: false, views_count: 5, max_views: 5)
+    assert_equal :exhausted, note.vanished_reason
+  end
+
+  test "archive! marks the note as archived and is idempotent" do
+    note = Note.create!(valid_attrs)
+    assert_not note.archived?
+
+    note.archive!
+    assert note.reload.archived?
+
+    # Calling twice must not raise.
+    note.archive!
+    assert note.reload.archived?
   end
 
   test "visibility enum works correctly" do
@@ -194,17 +270,39 @@ class NoteTest < ActiveSupport::TestCase
 
   test "as_json_payload exposes only the contract keys" do
     note = Note.create!(valid_attrs(language: "ca", max_views: 4,
+                                    views_count: 1,
                                     expires_at: 1.hour.from_now))
     note.distance_m = 42
 
     payload = note.as_json_payload
     assert_equal %i[id content latitude longitude distance_m language
-                    time_left_seconds views_remaining].sort,
+                    seconds_since_publication views_count max_views].sort,
                  payload.keys.sort
     assert_equal note.id, payload[:id]
     assert_equal 42, payload[:distance_m]
     assert_equal "ca", payload[:language]
-    assert_equal 4, payload[:views_remaining]
+    assert_equal 1, payload[:views_count]
+    assert_equal 4, payload[:max_views]
+  end
+
+  test "as_json_payload reports max_views as nil for unlimited notes" do
+    note = Note.create!(valid_attrs(max_views: nil, views_count: 7))
+    payload = note.as_json_payload
+
+    assert_nil payload[:max_views]
+    assert_equal 7, payload[:views_count]
+  end
+
+  test "seconds_since_publication snapshots the gap from created_at" do
+    note = Note.create!(valid_attrs)
+    note.update_column(:created_at, 90.seconds.ago)
+
+    assert_in_delta 90, note.seconds_since_publication, 5
+  end
+
+  test "seconds_since_publication is floored at zero for unsaved notes" do
+    note = Note.new(valid_attrs)
+    assert_equal 0, note.seconds_since_publication
   end
 
   # ── .nearby class method ──────────────────────────────────────

@@ -95,12 +95,20 @@ en:
         body: Be the first to leave a whisper here.
       meta:
         closest: closest
-        time_left_one: "%{count}m left"
-        time_left_hour: "%{hours}h %{minutes}m left"
-        time_left_day: "%{days}d %{hours}h left"
-        time_left_unlimited: "no time limit"
-        views_left: "%{remaining} of %{max} reads"
-        views_left_unlimited: "unlimited reads"
+        time_ago_now: "just now"
+        time_ago_minutes: "%{count}m ago"
+        time_ago_hours: "%{count}h ago"
+        time_ago_days: "%{count}d ago"
+    cluster:
+      eyebrow:
+        one: "1 whisper here"
+        other: "%{count} whispers here"
+      here_eyebrow: "Right where you stand"
+      distance_away: "%{meters}m away"
+      close: Close stack
+      peek:
+        one: "1 whisper · %{meters}m"
+        other: "%{count} whispers · %{meters}m"
     denied:
       eyebrow: Location needed
       headline:
@@ -172,8 +180,61 @@ en:
       unlimited: Unlimited reads
     whisper_back: Whisper back
     report: Report
+    archive:
+      cta: Archive
+      confirm: This whisper will disappear forever. Continue?
+      success: Whisper archived.
+    status:
+      archived: Archived
+      expired: Expired
+      exhausted: Out of reads
+      locked: Locked
+      body: "Only you can see this. It no longer appears on the map."
     not_found:
       title: This whisper has vanished.
       body: It might have run out of reads or fallen out of the radius. Try the map.
+  yourself:
+    title: Yourself
+    eyebrow: "@%{handle}"
+    counter:
+      dropped:
+        one: "1 dropped"
+        other: "%{count} dropped"
+      alive:
+        one: "1 still alive"
+        other: "%{count} still alive"
+    sections:
+      languages: LANGUAGES
+      presence: PRESENCE
+      trail: YOUR TRAIL
+    rows:
+      whispers_in: Show whispers in
+      interface: Interface
+      search_radius: Search radius
+      notify: Notify me when nearby
+      anonymous: Anonymous mode
+    placeholders:
+      search_radius: 1 km
+      notify: Sometimes
+      anonymous: "Off"
+    soon_badge: SOON
+    trail:
+      empty: "You haven't dropped any whispers yet — the world is quiet from here."
+      meta:
+        archived_label: archived
+        alive_label: alive
+        with_distance: "%{distance}m · %{state} · %{reads}"
+        without_distance: "%{state} · %{reads}"
+        vanished_ago: "vanished %{time} ago"
+      reads:
+        capped:
+          one: "%{count}/%{max} read"
+          other: "%{count}/%{max} reads"
+        unlimited: unlimited reads
+    sign_out: Sign out
+    tagline: "be quiet, be here."
+    version_line: "v 0.1 · %{handle}"
+  flash:
+    dismiss: Dismiss
   errors:
     forbidden: You need to sign in first.

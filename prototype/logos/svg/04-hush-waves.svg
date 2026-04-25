@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80" role="img" aria-label="GeoWhisper · Hush waves">
+  <circle cx="22" cy="40" r="6" fill="#b6552c"></circle>
+  <path d="M34 24 Q 44 40, 34 56" stroke="#2a2118" stroke-width="3" fill="none" stroke-linecap="round"></path>
+  <path d="M44 18 Q 60 40, 44 62" stroke="#2a2118" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.55"></path>
+  <path d="M54 12 Q 76 40, 54 68" stroke="#2a2118" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.28"></path>
+</svg>
