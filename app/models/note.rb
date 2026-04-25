@@ -51,6 +51,14 @@ class Note < ApplicationRecord
   # in Ruby with the Haversine formula. Fine for hackathon-scale data;
   # PostGIS migration plan is in +doc/future.md+.
   #
+  # The longitude span has to be widened by +1 / cos(lat)+ because one
+  # degree of longitude is shorter than one degree of latitude away from
+  # the equator. Skipping that correction was a real bug — at Barcelona
+  # latitudes the box was ~25 % too narrow and clipped notes that were
+  # genuinely within the radius. A small safety multiplier covers
+  # GPS jitter so we don't flip notes in/out of the bounding box on
+  # successive polls.
+  #
   # @param lat [Float] searcher latitude in WGS84 decimal degrees.
   # @param lng [Float] searcher longitude in WGS84 decimal degrees.
   # @param radius_m [Integer] search radius in meters; clamped to
@@ -59,11 +67,16 @@ class Note < ApplicationRecord
   #   +#distance_m+ set, sorted ascending by distance.
   def self.nearby(lat:, lng:, radius_m: 1_000)
     effective_radius = [ radius_m, MAX_RADIUS_M ].min
-    delta = effective_radius / 111_000.0  # degrees per meter, rough.
+    safety_margin    = 1.10
+    lat_delta = (effective_radius * safety_margin) / 111_000.0
+    cos_lat   = Math.cos(lat * Math::PI / 180).abs
+    # Guard against the poles: when cos(lat) → 0 we fall back to
+    # "every longitude" rather than dividing by ~0.
+    lng_delta = cos_lat < 1e-6 ? 180.0 : lat_delta / cos_lat
 
     active
-      .where(latitude:  (lat - delta)..(lat + delta))
-      .where(longitude: (lng - delta)..(lng + delta))
+      .where(latitude:  (lat - lat_delta)..(lat + lat_delta))
+      .where(longitude: (lng - lng_delta)..(lng + lng_delta))
       .each { |note| note.distance_m = note.distance_to_m(lat, lng) }
       .select { |note| note.distance_m <= effective_radius }
       .sort_by(&:distance_m)

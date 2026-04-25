@@ -280,4 +280,36 @@ class NoteTest < ActiveSupport::TestCase
     assert_includes ids, permanent.id
     assert_includes ids, unlimited.id
   end
+
+  # Regression: at non-equatorial latitudes 1° of longitude spans much
+  # less than 1° of latitude, so a naive `delta = radius_m / 111_000`
+  # bounding box clips the longitude axis. A note that is genuinely
+  # within the radius (Haversine) must still be returned even when its
+  # `lng - user_lng` is wider than what the latitude-based delta would
+  # have accepted.
+  test "nearby still returns notes near the longitude edge of the radius" do
+    user_lat = 41.4   # Barcelona-ish; 1° lng ≈ 84 km, 1° lat ≈ 111 km.
+    user_lng = 2.0
+    # ~3.5 km to the east, well within a 5 km radius. With a naive
+    # delta = 5000 / 111_000 ≈ 0.045°, the lng box would only span
+    # ~3.78 km, just barely catching this — at 4 km it would miss.
+    east = Note.create!(valid_attrs(latitude: user_lat,
+                                    longitude: user_lng + 0.047,
+                                    content: "east edge"))
+
+    ids = Note.nearby(lat: user_lat, lng: user_lng, radius_m: 5_000).map(&:id)
+    assert_includes ids, east.id
+  end
+
+  test "nearby still excludes a note that is past the longitude edge" do
+    user_lat = 41.4
+    user_lng = 2.0
+    # 8 km east — outside the 5 km radius regardless of the box.
+    far = Note.create!(valid_attrs(latitude: user_lat,
+                                   longitude: user_lng + 0.10,
+                                   content: "well past"))
+
+    ids = Note.nearby(lat: user_lat, lng: user_lng, radius_m: 5_000).map(&:id)
+    assert_not_includes ids, far.id
+  end
 end
