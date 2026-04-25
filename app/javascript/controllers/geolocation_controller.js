@@ -32,7 +32,11 @@ export default class extends Controller {
     navigator.geolocation.getCurrentPosition(
       () => this.submit(false),
       () => this.submit(true),
-      { timeout: 10000, maximumAge: 0 }
+      // High accuracy: force GPS over IP-based geolocation. The compose
+      // form persists these coordinates as the note's anchor, so being
+      // off by kilometres would make the user's own whisper invisible
+      // when /map polls /notes/nearby a moment later.
+      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 }
     )
   }
 
@@ -57,7 +61,11 @@ export default class extends Controller {
         // Leave coords empty. Server-side validation will refuse the
         // submit and the form will re-render with an error.
       },
-      { timeout: 10000, maximumAge: 0 }
+      // High accuracy: force GPS over IP-based geolocation. The compose
+      // form persists these coordinates as the note's anchor, so being
+      // off by kilometres would make the user's own whisper invisible
+      // when /map polls /notes/nearby a moment later.
+      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 }
     )
   }
 }

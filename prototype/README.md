@@ -1,88 +1,41 @@
-# GeoWhisper · Prototype build
+# GeoWhisper · Cluster handoff
 
-Self-contained interactive prototype of the GeoWhisper app. Twelve frames in total — the eight core flow screens, two edge states (empty / GPS denied), and two form-validation states (signup / login errors with inline field errors).
+Three files, in order of usefulness for code:
 
-## Run it
+## 1. `GeoWhisper-prototype.html` — the prototype
+Single self-contained file. Open in any browser, no server needed.
+The cluster section is at the top of the canvas: **Map · pin clustering**.
 
-You need any static-file server, because the prototype uses ES module-style script loading and Babel transpilation that browsers block under `file://`.
+5 frames:
+- Cluster vocabulary (visual atlas: 1 / 2 / 3 / 7 / 12 / 120 notes)
+- Map · pins + clusters mixed (the realistic case)
+- Cluster tapped · 3 notes (bottom sheet open, small list)
+- Cluster tapped · 12 notes (bottom sheet, scrolling)
+- Edge · same GPS point (5 notes at exactly the same coords)
 
-### Option A — npx (no install)
+## 2. `cluster-components.jsx` — the source for the cluster UI
+Plain JSX, ~330 lines. Components:
 
-```bash
-cd prototype-build
-npx serve
-```
+- **`ClusterMark`** — the stacked-papers visual. Props: `count`, `size` (`sm`/`md`/`lg`), `active`. Always renders 3 layers + the count, regardless of how many notes there are.
+- **`ClusterSheet`** — the bottom sheet that lists notes when a cluster is tapped. Props: `notes`, `place`.
+- **`ClusterRow`** — single row inside the sheet (note text + lang chip + reads-left + fade timer).
+- Frame-level wrappers (`ClusterAtlas`, `MapWithClusters`, `ClusterExpanded`, `SameSpotStack`) — useful as references but not meant for direct reuse.
 
-Then open http://localhost:3000.
+Theme tokens (`t.card`, `t.cardEdge`, `t.bgDeep`, etc.) come from `themes.js` in the original project — substitute your own.
 
-### Option B — Python
+## 3. `icons.jsx` — full icon set
+All icons used across the prototype, including the new `target` (recenter crosshair). Each is an inline SVG component: `<Icon.target c="#3a3128" s={16} />`.
 
-```bash
-cd prototype-build
-python3 -m http.server 8000
-```
+## Behaviour rules (the important part)
 
-Then open http://localhost:8000.
+1. **Cluster threshold**: pins within ~40px screen-distance fuse into a stack.
+2. **Tap, don't zoom**: tapping a stack opens the bottom sheet. Zoom does *not* split same-coord stacks — and that's intentional, because in GeoWhisper many notes at exactly the same GPS point is the *normal* case, not the exception.
+3. **Always 3 layers visible**: never render more sheets in the stack — only the count changes (`3`, `9+`, `99+`).
+4. **Bottom sheet**, not popover. Drag handle at top, place name + count header, scrollable list of `ClusterRow`s.
+5. **Active cluster stays visible** behind the dimmed map while the sheet is open, slightly scaled up.
 
-### Option C — drop into your Rails app
-
-Copy this whole folder into `public/prototype/` in your Rails repo. Rails serves `public/` as static, so:
-
-```bash
-bin/rails server
-```
-
-Then open http://localhost:3000/prototype/.
-
-## What's in the canvas
-
-| Section | Frames |
-|---|---|
-| Soft & Paper · core flow | 01 Onboarding · 02 Sign in · 03 Sign up · 04 Map (home) · 05 Nearby list · 06 Drop a whisper · 07 Read · ink-bleed vanish · 08 Yourself |
-| Edge states | 09 Empty · no ghosts here yet · 10 Location denied |
-| Form validation · inline per-field errors | Sign up · multi-field error · Sign in · server-returned error |
-| Tap-through demo | One live phone — tap the peek card on the map to trigger the read → vanish flow |
-
-## How to interact
-
-- **Pan the canvas** with click-drag. Scroll to zoom.
-- **Click any artboard label** to focus it fullscreen. Press Esc to exit.
-- The bottom tab bar in any phone is clickable: Map · Drop · Me.
-- The peek card on the map is clickable — tap it to enter the detail view and watch the ink-bleed vanish play through.
-
-## Files
-
-```
-prototype-build/
-├── index.html              ← entry point
-├── app.jsx                 ← canvas layout & phone scaffolding
-├── design-canvas.jsx       ← presentation harness (pan/zoom/focus)
-├── ios-frame.jsx           ← device chrome
-├── icons.jsx               ← hairline icon set
-├── atoms.jsx               ← shared components (WhisperCard, TabBar, ScreenHeader)
-├── map.jsx                 ← stylized map placeholder
-├── screens-1.jsx           ← onboarding, map, nearby list, empty, denied
-├── screens-2.jsx           ← compose, auth (login + signup, with error state)
-├── screens-3.jsx           ← detail (with ink-bleed vanish), profile/settings
-└── themes.js               ← Soft & Paper tokens
-```
-
-## Design tokens
-
-Embedded in `themes.js`. Reach for these when porting to Tailwind/DaisyUI:
-
-- Paper: `#f5efe4` · Paper-deep: `#ede5d4`
-- Card: `#fffaf0` · Card edge: `rgba(60,40,20,0.08)`
-- Ink: `#2a2118` · Ink-soft: `rgba(42,33,24,0.62)` · Ink-faint: `rgba(42,33,24,0.32)`
-- Accent (terracotta): `#b6552c` · Accent-soft: `#e8c8a8`
-- Ghost: `#7a8b7a`
-- Error: `#c0432b` (used for inline form errors)
-- Type: Newsreader (serif), Inter (sans), JetBrains Mono (mono), Caveat (handwriting, sparingly)
-
-## Notes for the production build
-
-This prototype is a visual reference. **Do not import the JSX into the Rails app.** Recreate the screens with Tailwind/DaisyUI components, using:
-
-- The tokens above as ground truth
-- The `HANDOFF.md` next to the logos for the favicon + lockup integration
-- The form-error pattern shown in the validation frames (red 1.5px border + soft halo, helper text below in sans-12, role="alert", aria-invalid, error clears as user types)
+## Fonts used
+- Newsreader (serif body)
+- Inter (UI)
+- JetBrains Mono (caps/labels)
+- Caveat (handwritten accents — not used in clusters)

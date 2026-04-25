@@ -52,13 +52,6 @@ const Icon = {
       <circle cx="12" cy="12" r="9.5" stroke={c} strokeWidth="1.2" opacity="0.25" />
     </svg>
   ),
-  target: ({ c = 'currentColor', s = 16 }) => (
-    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="2.5" fill={c} />
-      <circle cx="12" cy="12" r="7" stroke={c} strokeWidth="1.4" opacity="0.6" />
-      <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke={c} strokeWidth="1.4" strokeLinecap="round" />
-    </svg>
-  ),
   arrow: ({ c = 'currentColor', s = 16 }) => (
     <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
       <path d="M5 12h14M13 6l6 6-6 6" stroke={c} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />

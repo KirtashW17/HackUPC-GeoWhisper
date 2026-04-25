@@ -60,7 +60,13 @@ export default class extends Controller {
     navigator.geolocation.getCurrentPosition(
       (pos) => this.onLocation(pos.coords),
       ()    => this.setState("denied"),
-      { timeout: 10000, maximumAge: 0 }
+      // `enableHighAccuracy: true` forces the device to use GPS (or its
+      // best high-accuracy source). Without it, the browser is free to
+      // return IP-based coordinates that can be kilometres off — and a
+      // user's freshly-dropped whisper would silently fall outside the
+      // search radius. Slower (5–10 s indoors) but precision matters
+      // more than latency here.
+      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 }
     )
   }
 
