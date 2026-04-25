@@ -1,16 +1,29 @@
+# View helpers for the auth screens (sign-in, sign-up).
+#
+# Encapsulates the bespoke field + form-alert components from the design
+# system so the views stay declarative and don't repeat Tailwind class
+# strings or aria-* wiring.
 module FormsHelper
-  # Renders an "AuthField"-style input — the rounded card from the prototype
+  # Render an "AuthField"-style input — the rounded card from the prototype
   # (prototype/screens-2.jsx :: AuthField) with the inline error treatment
   # described in doc/frontend.md.
   #
-  # Usage in a form_with block:
+  # When +form.object.errors[attribute]+ has entries, the field paints a
+  # 1.5px error-ink border, a soft halo, and renders a +role="alert"+
+  # message below with a small ! glyph.
   #
-  #   <%= auth_field(f, :email,    label: t("auth.fields.email"),
+  # @param form [ActionView::Helpers::FormBuilder] the form builder yielded
+  #   by +form_with+.
+  # @param attribute [Symbol] the model attribute this field binds to.
+  # @param label [String] already-translated label text.
+  # @param type [Symbol] one of +:text+, +:email+, +:password+; selects the
+  #   underlying form helper.
+  # @param autocomplete [String, nil] value for the +autocomplete+ HTML attr.
+  # @param autofocus [Boolean] whether to render the +autofocus+ attribute.
+  # @return [ActiveSupport::SafeBuffer] HTML markup for the field.
+  # @example
+  #   <%= auth_field(f, :email, label: t("auth.fields.email"),
   #                  type: :email, autocomplete: "email", autofocus: true) %>
-  #
-  # When `form.object.errors[attribute]` has entries, the field paints a
-  # 1.5px error-ink border, a soft halo, and renders a role="alert" message
-  # below with a small ! glyph.
   def auth_field(form, attribute, label:, type: :text, autocomplete: nil, autofocus: false)
     errors = Array(form.object&.errors&.[](attribute))
     errored = errors.any?
@@ -66,18 +79,20 @@ module FormsHelper
     end
   end
 
-  # Top-of-form alert pill — used for form-wide errors (e.g. "Wrong email
-  # or password" on login, where the failure isn't tied to a single field).
+  # Render a top-of-form alert pill for form-wide errors.
   #
-  # The pill currently uses the original `accent` (terracotta) family so it
-  # reads as "advisory, not catastrophic" — these messages aren't validation
-  # errors per se, they're login/system feedback. Field-level validation
-  # errors use the redder `error-ink` family inside `auth_field`.
+  # Used for failures that aren't tied to a single field (e.g. "Wrong email
+  # or password" on login). Returns +nil+ when +message+ is blank so the
+  # caller can splat it into a layout without a guard.
   #
-  # Alternative styling — switch to the redder error palette to match
-  # field-level errors. Uncomment to try:
+  # The pill uses the +accent+ (terracotta) palette so it reads as
+  # "advisory, not catastrophic" — login/system feedback rather than
+  # validation. Field-level validation errors use the redder +error-ink+
+  # palette inside {#auth_field}.
   #
-  #     class: "rounded-card border border-error-ink/40 bg-error-halo/30 px-4 py-2.5 text-sm text-error-ink"
+  # @param message [String, nil] already-translated message; +nil+/blank
+  #   short-circuits to +nil+.
+  # @return [ActiveSupport::SafeBuffer, nil] HTML markup, or +nil+ when blank.
   def auth_form_alert(message)
     return if message.blank?
 
@@ -90,6 +105,9 @@ module FormsHelper
 
   private
 
+  # Inline SVG circled-exclamation glyph used by the error treatments above.
+  #
+  # @return [ActiveSupport::SafeBuffer] inline +<svg>+ markup.
   def error_glyph
     tag.svg(width: "13", height: "13", viewBox: "0 0 13 13", "aria-hidden": "true",
             class: "inline-block shrink-0") do

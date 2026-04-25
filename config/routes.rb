@@ -18,5 +18,12 @@ Rails.application.routes.draw do
   post "/welcome", to: "welcome#complete", as: :complete_onboarding
   get  "/map",     to: "map#show",         as: :map
 
+  # Notes — phase 2 surface. The Note model lives on a colleague's branch;
+  # while it lands, controllers read from `Notes::Catalog` (an in-memory
+  # stub) and `#create` returns a fake-success without persistence. See
+  # doc/plans/phase_2_map_and_compose.md.
+  get  "/notes/nearby", to: "notes#nearby", as: :nearby_notes, defaults: { format: :json }
+  resources :notes, only: %i[new create show]
+
   root "sessions#new"
 end

@@ -2,12 +2,88 @@
 @tailwind components;
 @tailwind utilities;
 
-/*
+/* Tailwind preflight sets `[hidden] { display: none }` without
+ * `!important`, so any `display: flex` / `display: block` utility on
+ * the same element wins (declaration order). Force `[hidden]` to win
+ * — Stimulus toggles the attribute to swap states on the map screen
+ * and we need it to actually hide. */
+@layer base {
+  [hidden] { display: none !important; }
+}
 
+/* ── Map pins (Leaflet divIcons) ───────────────────────────────────
+ * The "you are here" pin and the note pins are rendered as Leaflet
+ * divIcons (not the default PNG markers, which would require shipping
+ * leaflet's image assets). Styled here so the markup in
+ * map_controller.js stays minimal.
+ */
 @layer components {
-  .btn-primary {
-    @apply py-2 px-4 bg-blue-200;
+  .gw-pin-here {
+    @apply pointer-events-none relative;
+  }
+  .gw-pin-here__dot {
+    @apply absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ghost ring-2 ring-bg;
+  }
+  .gw-pin-here__pulse {
+    @apply absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ghost/40;
+    animation: gw-pulse-here 2s ease-out infinite;
+  }
+
+  .gw-pin {
+    @apply relative;
+  }
+  .gw-pin__dot {
+    @apply block h-3 w-3 rounded-full bg-accent ring-2 ring-bg shadow-[0_0_0_4px_rgba(182,85,44,0.18)];
+  }
+
+  .gw-loading-pulse {
+    @apply h-3 w-3 rounded-full bg-accent;
+    animation: gw-pulse-soft 1.6s ease-out infinite;
   }
 }
 
-*/
+@keyframes gw-pulse-here {
+  0%   { transform: translate(-50%, -50%) scale(0.6); opacity: 0.6; }
+  100% { transform: translate(-50%, -50%) scale(2.4); opacity: 0; }
+}
+
+@keyframes gw-pulse-soft {
+  0%, 100% { opacity: 0.45; transform: scale(0.9); }
+  50%      { opacity: 1;    transform: scale(1.2); }
+}
+
+/* ── Leaflet skin · Soft & Paper ───────────────────────────────────
+ * Pushes the default OSM blue/green into the project's warm palette
+ * with a CSS filter on the tile pane, then re-skins attribution,
+ * popups and the loading background using our tokens. No API key,
+ * no tile provider change — drop this block if we ever move to a
+ * pre-styled tile source. */
+@layer components {
+  .leaflet-container       { background: #ede5d4; }
+  .leaflet-tile-pane       { filter: sepia(0.42) saturate(0.55) hue-rotate(-14deg) brightness(1.05) contrast(0.92); }
+  .leaflet-tile-pane img   { mix-blend-mode: multiply; }
+
+  .leaflet-control-attribution {
+    @apply rounded-tl-card border-l border-t border-card-edge bg-bg/85 px-2 py-0.5 font-mono text-[9px] tracking-eyebrow text-ink-soft backdrop-blur-sm;
+  }
+  .leaflet-control-attribution a   { @apply text-accent; }
+  .leaflet-control-attribution svg { display: none; }
+
+  .leaflet-popup-content-wrapper {
+    @apply rounded-card border border-card-edge bg-card text-ink shadow-card;
+  }
+  .leaflet-popup-content {
+    @apply m-0 px-3 py-2 font-serif text-sm leading-5 text-ink;
+  }
+  .leaflet-popup-tip {
+    background: #fffaf0;
+    border: 1px solid rgba(60, 40, 20, 0.08);
+  }
+  .leaflet-popup-close-button { @apply text-ink-soft; }
+
+  .leaflet-bar,
+  .leaflet-bar a {
+    @apply rounded-card border border-card-edge bg-card text-ink;
+  }
+  .leaflet-bar a:hover { @apply bg-bg-deep; }
+}

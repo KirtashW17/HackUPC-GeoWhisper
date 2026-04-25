@@ -69,9 +69,101 @@ en:
     cta: Allow location & begin
     legal: WE NEVER STORE WHERE YOU'VE BEEN
   map:
-    placeholder:
-      eyebrow: Coming soon
-      title: The map lands next.
-      body: Leaflet + OpenStreetMap will live here. For now, you're onboarded.
+    header:
+      eyebrow: Nearby
+      whispers:
+        zero: "0 whispers"
+        one: "1 whisper · %{radius}"
+        other: "%{count} whispers · %{radius}"
+      recenter: Recenter on me
+    toggle:
+      map: Map
+      list: List
+    loading:
+      title: Looking around…
+      body: Reading the air for whispers.
+    empty:
+      title: No ghosts nearby.
+      body: Drop the first one — whoever passes through next will find it.
+      preview:
+        en: "EN · No ghosts nearby."
+        es: "ES · Sin susurros aquí."
+        ca: "CA · Cap xiuxiueig."
+    peek:
+      empty:
+        title: No ghosts nearby.
+        body: Be the first to leave a whisper here.
+      meta:
+        closest: closest
+        time_left_one: "%{count}m left"
+        time_left_hour: "%{hours}h %{minutes}m left"
+        time_left_day: "%{days}d %{hours}h left"
+        time_left_unlimited: "no time limit"
+        views_left: "%{remaining} of %{max} reads"
+        views_left_unlimited: "unlimited reads"
+    denied:
+      eyebrow: Location needed
+      headline:
+        prefix: "GeoWhisper only works"
+        emphasis: here
+        suffix: "."
+      body: "A whisper has nowhere to live without a place. Allow location to read or drop notes nearby — we never keep your trail."
+      steps:
+        label: How to enable
+        items:
+          - "Open Settings → Privacy → Location"
+          - "Find GeoWhisper in the list"
+          - "Choose “While Using the App”"
+      retry: Try again
+      browse_sample: Browse a sample of public whispers
+  nav:
+    map: Map
+    drop: Drop
+    me: Me
+    soon: Soon
+  compose:
+    eyebrow: Drop a whisper
+    headline:
+      prefix: "Leave a note for"
+      emphasis: whoever
+      suffix: "passes here next."
+    fields:
+      content:
+        label: Your whisper
+        placeholder: "Sit by the window — they bring out the saffron buns at 4."
+        counter: "%{count} / 500"
+      ttl:
+        label: Fades in
+        options:
+          quarter_hour: 15 minutes
+          hour: 1 hour
+          day: 1 day
+          week: 1 week
+      max_views:
+        label: Reads allowed
+        options:
+          one: 1 read
+          few: 5 reads
+          many: 25 reads
+          plenty: 100 reads
+      visibility:
+        label: Who can read it
+        public: Anyone here
+        friends: Friends only
+        whisper: Just one person
+    submit: Leave it here
+    success_stub: "Whisper left in the air. (We'll really save it once the model lands.)"
+    cancel: Cancel
+  detail:
+    back: Back to map
+    lifecycle:
+      fades_in: Fades in
+      reads_left: Reads left
+      permanent: No time limit
+      unlimited: Unlimited reads
+    whisper_back: Whisper back
+    not_found:
+      title: This whisper has vanished.
+      body: It might have run out of reads or fallen out of the radius. Try the map.
   errors:
     forbidden: You need to sign in first.

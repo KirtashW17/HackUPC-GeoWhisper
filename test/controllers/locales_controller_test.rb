@@ -1,5 +1,6 @@
 require "test_helper"
 
+# Coverage for {LocalesController} — anonymous + authenticated locale switch.
 class LocalesControllerTest < ActionDispatch::IntegrationTest
   test "supported locale is stored in session" do
     patch locale_path(locale: "es")

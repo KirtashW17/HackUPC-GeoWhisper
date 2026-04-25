@@ -1,5 +1,6 @@
 require "test_helper"
 
+# End-to-end coverage for {RegistrationsController} (sign-up).
 class RegistrationsControllerTest < ActionDispatch::IntegrationTest
   test "new is publicly accessible" do
     get new_registration_path

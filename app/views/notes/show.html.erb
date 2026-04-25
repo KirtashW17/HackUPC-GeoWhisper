@@ -1,0 +1,84 @@
+<%# /notes/:id — detail view for a single whisper.
+    The fade-out + ink-bleed animation from the prototype is reduced to
+    a CSS opacity transition; full vanish lives in Phase 5. %>
+<div class="relative mx-auto flex min-h-screen max-w-md flex-col bg-bg pb-24 px-7 pt-12">
+  <%= link_to map_path,
+        class: "mb-4 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-eyebrow text-ink-soft" do %>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+      <path d="M15 6l-6 6 6 6"/>
+    </svg>
+    <%= t("detail.back") %>
+  <% end %>
+
+  <%# Note card %>
+  <article class="relative rounded-sheet border border-card-edge bg-card px-6 py-7 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.35)]">
+    <%# Corner crease %>
+    <div class="absolute right-0 top-0 h-5 w-5 rounded-tr-sheet bg-gradient-to-bl from-bg-deep from-50% to-transparent to-50% opacity-60"></div>
+
+    <p class="font-mono text-[10px] uppercase tracking-eyebrow text-ink-soft">
+      <%= @note.language.upcase %>
+    </p>
+    <p class="mt-3 whitespace-pre-line font-serif text-[17px] leading-7 text-ink">
+      <%= @note.content %>
+    </p>
+  </article>
+
+  <%# Lifecycle bars %>
+  <div class="mt-7 flex flex-col gap-4">
+    <%# Fades in %>
+    <div>
+      <div class="mb-1.5 flex items-baseline justify-between font-mono text-[10px] uppercase tracking-eyebrow text-ink-soft">
+        <span><%= t("detail.lifecycle.fades_in") %></span>
+        <span class="font-serif text-sm normal-case tracking-normal text-ink">
+          <% if @note.time_left_seconds.nil? %>
+            <%= t("detail.lifecycle.permanent") %>
+          <% else %>
+            <%= distance_of_time_in_words(Time.current, Time.current + @note.time_left_seconds) %>
+          <% end %>
+        </span>
+      </div>
+      <% if @note.time_left_seconds && @note.expires_at %>
+        <%# Bucket against the original lifetime ceiling (here capped at
+            1 day for a stable visual scale; longer notes start near full). %>
+        <% pct = (@note.time_left_seconds.to_f / 1.day.to_i * 100).clamp(0, 100) %>
+        <div class="h-1 w-full rounded-full bg-bg-deep">
+          <div class="h-full rounded-full bg-accent <%= progress_width_class(pct) %>"></div>
+        </div>
+      <% end %>
+    </div>
+
+    <%# Reads left %>
+    <div>
+      <div class="mb-1.5 flex items-baseline justify-between font-mono text-[10px] uppercase tracking-eyebrow text-ink-soft">
+        <span><%= t("detail.lifecycle.reads_left") %></span>
+        <span class="font-serif text-sm normal-case tracking-normal text-ink">
+          <% if @note.views_remaining.nil? %>
+            <%= t("detail.lifecycle.unlimited") %>
+          <% else %>
+            <%= @note.views_remaining %> / <%= @note.max_views %>
+          <% end %>
+        </span>
+      </div>
+      <% if @note.views_remaining && @note.max_views %>
+        <% pct = ((@note.views_remaining.to_f / @note.max_views) * 100).clamp(0, 100) %>
+        <div class="h-1 w-full rounded-full bg-bg-deep">
+          <div class="h-full rounded-full bg-accent" style="width: <%= pct %>%"></div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="flex-1"></div>
+
+  <%# Whisper back — disabled with SOON %>
+  <button type="button" disabled
+          class="relative mt-8 flex cursor-not-allowed items-center justify-center gap-2 rounded-button border border-card-edge bg-card px-4 py-3 font-sans text-sm font-medium text-ink opacity-55"
+          title="<%= t('nav.soon') %>">
+    <%= t("detail.whisper_back") %>
+    <span class="absolute right-3.5 rounded-sm bg-bg-deep px-1.5 py-0.5 font-mono text-[9px] font-semibold tracking-eyebrow text-ink-soft">
+      <%= t("nav.soon") %>
+    </span>
+  </button>
+
+  <%= render "shared/tab_bar", active: :map %>
+</div>

@@ -1,15 +1,150 @@
-<%# Placeholder: replaced by Leaflet map in Phase 2. %>
-<div class="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center bg-bg px-7 text-center">
-  <p class="mb-3 font-mono text-[11px] uppercase tracking-eyebrow text-accent">
-    <%= t("map.placeholder.eyebrow") %>
-  </p>
-  <h1 class="font-serif text-3xl font-medium text-ink">
-    <%= t("map.placeholder.title") %>
-  </h1>
-  <p class="mt-4 max-w-xs font-serif text-base text-ink-soft">
-    <%= t("map.placeholder.body") %>
-  </p>
+<%# /map — Phase 2 main screen.
+    State machine driven by app/javascript/controllers/map_controller.js:
+    `loading` → `ready` (with map + markers + peek) | `empty` | `denied`.
+    Bound via [data-map-state] on the wrapper. %>
+<div class="relative mx-auto flex min-h-screen max-w-md flex-col bg-bg pb-24"
+     data-controller="map"
+     data-map-state="loading"
+     data-map-nearby-url-value="<%= nearby_notes_path %>"
+     data-map-radius-value="5000"
+     data-map-i18n-value="<%= {
+       closest: t("map.peek.meta.closest"),
+       no_time_limit: t("map.peek.meta.time_left_unlimited"),
+       unlimited_views: t("map.peek.meta.views_left_unlimited")
+     }.to_json %>">
 
-  <%= button_to t("layout.sign_out"), session_path, method: :delete,
-        class: "mt-10 rounded-button border border-card-edge bg-card px-5 py-2.5 font-sans text-sm text-ink-soft" %>
+  <%# ── Top header (Nearby chip + segmented Map/List + recenter) ── %>
+  <header class="absolute inset-x-4 top-14 z-20 flex items-start justify-between gap-3 data-[map-state=loading]:opacity-0 data-[map-state=denied]:opacity-0"
+          data-map-target="header"
+          hidden>
+    <div class="flex items-center gap-3 rounded-card border border-card-edge bg-card px-3.5 py-2 shadow-[0_4px_12px_rgba(0,0,0,0.06)]">
+      <div class="flex items-center gap-2">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b6552c" stroke-width="1.6" aria-hidden="true">
+          <path d="M12 2c-3.866 0-7 3.134-7 7 0 5.25 7 13 7 13s7-7.75 7-13c0-3.866-3.134-7-7-7Z"/>
+          <circle cx="12" cy="9" r="2.6" fill="#b6552c"/>
+        </svg>
+        <div>
+          <p class="font-mono text-[9px] uppercase tracking-eyebrow text-ink-soft"><%= t("map.header.eyebrow") %></p>
+          <p class="-mt-0.5 font-serif text-[13px] font-semibold text-ink"
+             data-map-target="counter">—</p>
+        </div>
+      </div>
+
+      <div class="flex gap-0.5 rounded-full bg-bg-deep p-[3px] font-mono text-[10px]">
+        <button type="button"
+                data-map-target="toggleMap"
+                data-action="click->map#showMap"
+                class="rounded-full px-2.5 py-1 font-semibold tracking-wide text-ink bg-card">
+          <%= t("map.toggle.map") %>
+        </button>
+        <button type="button"
+                data-map-target="toggleList"
+                data-action="click->map#showList"
+                class="rounded-full px-2.5 py-1 font-semibold tracking-wide text-ink-soft">
+          <%= t("map.toggle.list") %>
+        </button>
+      </div>
+    </div>
+
+    <button type="button"
+            data-action="click->map#retry"
+            title="<%= t('map.header.recenter') %>"
+            class="flex h-[42px] w-[42px] items-center justify-center rounded-full border border-card-edge bg-card shadow-[0_4px_12px_rgba(0,0,0,0.06)]">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2a2118" stroke-width="1.6" aria-hidden="true">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+      </svg>
+    </button>
+  </header>
+
+  <%# ── Loading state ── %>
+  <section data-map-target="loading"
+           class="relative flex min-h-[80vh] flex-col items-center justify-center px-7 text-center">
+    <div class="mb-6 flex h-12 w-12 items-center justify-center">
+      <span class="gw-loading-pulse"></span>
+    </div>
+    <p class="font-mono text-[11px] uppercase tracking-eyebrow text-accent"><%= t("map.header.eyebrow") %></p>
+    <h1 class="mt-2 font-serif text-2xl font-medium text-ink"><%= t("map.loading.title") %></h1>
+    <p class="mt-3 max-w-xs font-serif text-base italic text-ink-soft"><%= t("map.loading.body") %></p>
+  </section>
+
+  <%# ── Map state (Leaflet) ── %>
+  <div data-map-target="map"
+       class="absolute inset-0 z-0 bg-bg"
+       hidden>
+  </div>
+
+  <%# ── List state ── %>
+  <section data-map-target="list"
+           class="relative z-10 flex flex-col gap-2.5 px-4 pt-32"
+           hidden>
+  </section>
+
+  <%# ── Peek card slot (over the map) ── %>
+  <section data-map-target="peek"
+           class="absolute inset-x-4 bottom-24 z-20"
+           hidden>
+  </section>
+
+  <%# ── Empty state (over the map, replaces peek) ── %>
+  <section data-map-target="empty"
+           class="absolute inset-x-4 bottom-24 z-20"
+           hidden>
+    <div class="flex items-center gap-3.5 rounded-sheet border border-card-edge bg-card px-5 py-4 shadow-[0_12px_30px_rgba(0,0,0,0.1)]">
+      <div class="flex h-11 w-11 items-center justify-center rounded-full bg-bg-deep">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7a8b7a" stroke-width="1.4" aria-hidden="true">
+          <path d="M5 11a7 7 0 1 1 14 0v9l-2.5-1.5L14 20l-2.5-1.5L9 20l-2.5-1.5L5 20Z"/>
+          <circle cx="9.5" cy="11" r="1" fill="#7a8b7a"/>
+          <circle cx="14.5" cy="11" r="1" fill="#7a8b7a"/>
+        </svg>
+      </div>
+      <div class="flex-1">
+        <p class="font-serif text-base font-semibold text-ink"><%= t("map.peek.empty.title") %></p>
+        <p class="mt-0.5 font-serif text-sm italic text-ink-soft"><%= t("map.peek.empty.body") %></p>
+      </div>
+      <%= link_to new_note_path, class: "text-accent" do %>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M3 21c5-2 8-5 12-9l5-5-3-3-5 5c-4 4-7 7-9 12Z"/>
+        </svg>
+      <% end %>
+    </div>
+  </section>
+
+  <%# ── Denied state ── %>
+  <section data-map-target="denied"
+           class="relative flex min-h-[80vh] flex-col px-7 pt-20"
+           hidden>
+    <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-card border border-card-edge bg-card shadow-[0_8px_20px_-8px_rgba(0,0,0,0.2)]">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#b6552c" stroke-width="1.6" aria-hidden="true">
+        <path d="M12 2c-3.866 0-7 3.134-7 7 0 5.25 7 13 7 13s7-7.75 7-13c0-3.866-3.134-7-7-7Z"/>
+        <circle cx="12" cy="9" r="2.6"/>
+      </svg>
+    </div>
+    <p class="mb-2 font-mono text-[11px] uppercase tracking-eyebrow text-accent"><%= t("map.denied.eyebrow") %></p>
+    <h1 class="mb-3 text-balance font-serif text-[32px] font-medium leading-9 text-ink tracking-tight">
+      <%= t("map.denied.headline.prefix") %>
+      <span class="italic text-accent"><%= t("map.denied.headline.emphasis") %></span><%= t("map.denied.headline.suffix") %>
+    </h1>
+    <p class="text-pretty font-serif text-base leading-6 text-ink-soft"><%= t("map.denied.body") %></p>
+
+    <div class="mt-6 rounded-card border border-card-edge bg-card p-4">
+      <p class="mb-2.5 font-mono text-[10px] uppercase tracking-eyebrow text-ink-soft"><%= t("map.denied.steps.label") %></p>
+      <% t("map.denied.steps.items").each_with_index do |step, idx| %>
+        <div class="flex items-start gap-2.5 py-2 <%= idx.zero? ? '' : 'border-t border-dashed border-card-edge' %>">
+          <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-bg-deep font-mono text-[11px] font-semibold text-accent"><%= idx + 1 %></span>
+          <p class="pt-0.5 font-serif text-sm text-ink"><%= step %></p>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="flex-1"></div>
+
+    <button type="button"
+            data-action="click->map#retry"
+            class="mt-5 rounded-button bg-accent px-0 py-4 font-sans text-base font-semibold tracking-wide text-bg shadow-cta">
+      <%= t("map.denied.retry") %>
+    </button>
+  </section>
+
+  <%= render "shared/tab_bar", active: :map %>
 </div>

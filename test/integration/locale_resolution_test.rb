@@ -1,5 +1,9 @@
 require "test_helper"
 
+# Exercises the full resolution order in {ApplicationController#pick_locale}.
+#
+# Each test isolates one signal (param, session, Accept-Language header,
+# authenticated user's +language+, default) and asserts which one wins.
 class LocaleResolutionTest < ActionDispatch::IntegrationTest
   test "default locale when no signal present" do
     get root_path

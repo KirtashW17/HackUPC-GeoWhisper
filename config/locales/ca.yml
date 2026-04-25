@@ -69,9 +69,101 @@ ca:
     cta: Permet la ubicació i comença
     legal: MAI GUARDEM ON HAS ESTAT
   map:
-    placeholder:
-      eyebrow: Aviat
-      title: El mapa arriba després.
-      body: Aquí hi viurà Leaflet amb OpenStreetMap. De moment, ja hi ets dins.
+    header:
+      eyebrow: A prop
+      whispers:
+        zero: "0 xiuxiueigs"
+        one: "1 xiuxiueig · %{radius}"
+        other: "%{count} xiuxiueigs · %{radius}"
+      recenter: Centra en mi
+    toggle:
+      map: Mapa
+      list: Llista
+    loading:
+      title: Mirant al voltant…
+      body: Escoltant l'aire a la recerca de xiuxiueigs.
+    empty:
+      title: Cap xiuxiueig a prop.
+      body: Deixa el primer — qui passi després el trobarà.
+      preview:
+        en: "EN · No ghosts nearby."
+        es: "ES · Sin susurros aquí."
+        ca: "CA · Cap xiuxiueig."
+    peek:
+      empty:
+        title: Cap xiuxiueig a prop.
+        body: Sigues el primer a deixar un xiuxiueig.
+      meta:
+        closest: el més proper
+        time_left_one: "queden %{count}m"
+        time_left_hour: "queden %{hours}h %{minutes}m"
+        time_left_day: "queden %{days}d %{hours}h"
+        time_left_unlimited: "sense límit de temps"
+        views_left: "%{remaining} de %{max} lectures"
+        views_left_unlimited: "lectures il·limitades"
+    denied:
+      eyebrow: Cal la ubicació
+      headline:
+        prefix: "GeoWhisper només funciona"
+        emphasis: aquí
+        suffix: "."
+      body: "Un xiuxiueig no té on viure sense un lloc. Permet la ubicació per llegir o deixar notes properes — mai guardem el teu rastre."
+      steps:
+        label: Com activar-ho
+        items:
+          - "Obre Ajustos → Privadesa → Ubicació"
+          - "Troba GeoWhisper a la llista"
+          - "Tria “Mentre utilitzes l'app”"
+      retry: Torna a provar-ho
+      browse_sample: Mira una mostra de xiuxiueigs públics
+  nav:
+    map: Mapa
+    drop: Deixa
+    me: Jo
+    soon: Aviat
+  compose:
+    eyebrow: Deixa un xiuxiueig
+    headline:
+      prefix: "Deixa una nota per a"
+      emphasis: qui
+      suffix: "passi per aquí després."
+    fields:
+      content:
+        label: El teu xiuxiueig
+        placeholder: "Seu vora la finestra — treuen els panets de safrà a les 4."
+        counter: "%{count} / 500"
+      ttl:
+        label: S'esvaeix en
+        options:
+          quarter_hour: 15 minuts
+          hour: 1 hora
+          day: 1 dia
+          week: 1 setmana
+      max_views:
+        label: Lectures permeses
+        options:
+          one: 1 lectura
+          few: 5 lectures
+          many: 25 lectures
+          plenty: 100 lectures
+      visibility:
+        label: Qui ho pot llegir
+        public: Qualsevol per aquí
+        friends: Només amics
+        whisper: Una sola persona
+    submit: Deixa-la aquí
+    success_stub: "Xiuxiueig deixat a l'aire. (El guardarem de debò quan arribi el model.)"
+    cancel: Cancel·la
+  detail:
+    back: Torna al mapa
+    lifecycle:
+      fades_in: S'esvaeix en
+      reads_left: Lectures restants
+      permanent: Sense límit de temps
+      unlimited: Lectures il·limitades
+    whisper_back: Respon el xiuxiueig
+    not_found:
+      title: Aquest xiuxiueig s'ha esvaït.
+      body: Potser ha exhaurit les lectures o queda fora del radi. Prova el mapa.
   errors:
     forbidden: Has d'iniciar sessió primer.

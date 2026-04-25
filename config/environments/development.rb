@@ -8,6 +8,15 @@ Rails.application.configure do
   # since you don't have to restart the web server when you make code changes.
   config.enable_reloading = true
 
+  # Allow tunneled hosts (ngrok / localhost.run) so we can hit the dev
+  # server from a real mobile device for Geolocation testing. Geolocation
+  # only fires on a secure context (HTTPS), and tunnels are the easiest
+  # way to get one without minting our own cert. See doc/next-steps.md.
+  config.hosts << /.*\.ngrok(?:-free)?\.app\z/
+  config.hosts << /.*\.lhr\.life\z/
+  config.hosts << /.*\.serveo\.net\z/
+  config.hosts << /.*\.trycloudflare\.com\z/
+
   # Do not eager load code on boot.
   config.eager_load = false
 

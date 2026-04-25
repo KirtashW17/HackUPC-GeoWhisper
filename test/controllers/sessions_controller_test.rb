@@ -1,5 +1,6 @@
 require "test_helper"
 
+# End-to-end coverage for {SessionsController} (sign-in / sign-out).
 class SessionsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @user = User.create!(

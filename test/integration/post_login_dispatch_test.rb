@@ -1,6 +1,14 @@
 require "test_helper"
 
+# Verifies the post-login routing rules: where each kind of user lands after
+# sign-in / sign-up, and the +/welcome+ ↔ +/map+ guards based on
+# +onboarded_at+.
 class PostLoginDispatchTest < ActionDispatch::IntegrationTest
+  # Build a user with a unique email and the requested onboarding state.
+  #
+  # @param language [String] one of {User::SUPPORTED_LANGUAGES}.
+  # @param onboarded [Boolean] when true, sets +onboarded_at+ to now.
+  # @return [User] a persisted user.
   def create_user(language:, onboarded:)
     User.create!(
       email: "user-#{SecureRandom.hex(4)}@example.com",

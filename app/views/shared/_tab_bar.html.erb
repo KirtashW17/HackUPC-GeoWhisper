@@ -1,0 +1,41 @@
+<%# Bottom tab bar — three slots (Map / Drop FAB / Me).
+    Drop FAB is enabled only on /map (links to /notes/new). Me is
+    permanently disabled with a SOON badge until /profile exists. %>
+<%
+  active ||= :map
+%>
+<nav class="fixed inset-x-0 bottom-0 z-30 mx-auto flex max-w-md items-end justify-around border-t border-card-edge bg-bg pb-6 pt-2"
+     aria-label="<%= t('nav.map') %> · <%= t('nav.drop') %> · <%= t('nav.me') %>">
+  <%# Map %>
+  <%= link_to map_path,
+        class: "flex flex-col items-center gap-0.5 px-3 py-1.5 #{active == :map ? 'text-ink' : 'text-ink-faint'}" do %>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+      <path d="M12 2c-3.866 0-7 3.134-7 7 0 5.25 7 13 7 13s7-7.75 7-13c0-3.866-3.134-7-7-7Z"/>
+      <circle cx="12" cy="9" r="2.6"/>
+    </svg>
+    <span class="font-sans text-[10px] tracking-wide <%= active == :map ? 'font-semibold' : '' %>"><%= t("nav.map") %></span>
+  <% end %>
+
+  <%# Drop · centered FAB %>
+  <%= link_to new_note_path,
+        class: "-mt-5 flex h-[52px] w-[52px] items-center justify-center rounded-full bg-accent text-bg shadow-[0_8px_18px_rgba(182,85,44,0.55)]",
+        aria: { label: t("nav.drop") } do %>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <path d="M3 21c5-2 8-5 12-9l5-5-3-3-5 5c-4 4-7 7-9 12Z"/>
+      <path d="M14 5l3 3"/>
+    </svg>
+  <% end %>
+
+  <%# Me · disabled with SOON %>
+  <span class="relative flex flex-col items-center gap-0.5 px-3 py-1.5 text-ink-faint opacity-55"
+        title="<%= t('nav.soon') %>">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+      <circle cx="12" cy="8" r="3.5"/>
+      <path d="M5 20c1.5-3.5 4.5-5 7-5s5.5 1.5 7 5"/>
+    </svg>
+    <span class="font-sans text-[10px] tracking-wide"><%= t("nav.me") %></span>
+    <span class="absolute -right-2 -top-1 rounded-sm bg-bg-deep px-1 font-mono text-[8px] font-semibold tracking-eyebrow text-ink-soft">
+      <%= t("nav.soon") %>
+    </span>
+  </span>
+</nav>

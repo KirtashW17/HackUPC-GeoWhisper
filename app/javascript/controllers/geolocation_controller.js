@@ -1,12 +1,25 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Triggers a browser geolocation prompt before submitting a form.
-// Used on the onboarding screen to request the GPS permission as
-// part of the "Allow location & begin" CTA. The form submits in
-// either case (granted or denied); when denied, the `denied` target
-// is flipped to "1" so the server can flash an informative notice.
+// Wraps `navigator.geolocation.getCurrentPosition` for forms that need
+// the user's coordinates. Two modes, picked by which targets exist:
+//
+// 1. **Submit-on-prompt** (used by /welcome): the user clicks a button
+//    that fires `geolocation#request`. We `preventDefault`, ask for the
+//    GPS prompt, and then submit the form regardless of grant/denial.
+//    A `denied` target gets flipped to "1" when the prompt fails so the
+//    server can surface a hint.
+//
+// 2. **Autofill-on-connect** (used by /notes/new): the form has hidden
+//    `latitude` / `longitude` targets. On `connect` we read the GPS and
+//    fill them. The user can submit normally.
 export default class extends Controller {
-  static targets = ["form", "denied"]
+  static targets = ["form", "denied", "latitude", "longitude"]
+
+  connect() {
+    if (this.hasLatitudeTarget && this.hasLongitudeTarget) {
+      this.autofillCoords()
+    }
+  }
 
   request(event) {
     event.preventDefault()
@@ -23,10 +36,28 @@ export default class extends Controller {
     )
   }
 
+  // ── private ──────────────────────────────────────────────────
+
   submit(denied) {
     if (denied && this.hasDeniedTarget) {
       this.deniedTarget.value = "1"
     }
     this.formTarget.requestSubmit()
+  }
+
+  autofillCoords() {
+    if (!navigator.geolocation) return
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        this.latitudeTarget.value  = pos.coords.latitude
+        this.longitudeTarget.value = pos.coords.longitude
+      },
+      () => {
+        // Leave coords empty. Server-side validation will refuse the
+        // submit and the form will re-render with an error.
+      },
+      { timeout: 10000, maximumAge: 0 }
+    )
   }
 }

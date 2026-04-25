@@ -1,14 +1,25 @@
-# Plan — Fase 0 (parcial): Auth + i18n + CI
+# Plan — Fase 0 · sub-plan A: Auth + i18n + CI
 
-> **Alcance acordado:** auth, esqueleto i18n y CI básico. La capa visual
-> (Tailwind + DaisyUI + layout mobile-first) la genera Claude Design en
-> paralelo y se integrará después.
+> **Sub-plan A de la Fase 0 ("Fundamentos") en
+> [`task_planning.md`](../task_planning.md).** Cubre auth, esqueleto i18n y
+> verificación del CI base. La parte visual + onboarding se trata en el
+> sub-plan B [`phase_1_ui_login_onboarding.md`](phase_1_ui_login_onboarding.md)
+> *(nombre histórico: lo escribimos pensando que sería Fase 1 antes de
+> reordenar, conservamos el filename para no romper enlaces)*.
 >
-> **Simplificación de scope para esta tanda:**
+> **Estado: completado al 100%** — auth + i18n + tests verdes. Verificación
+> CI hecha. Detalle en el bloque "Estado de ejecución" más abajo.
+>
+> **Decisiones cerradas** (motivación en [`../decisions.md`](../decisions.md)):
+> Rails 7.2 (no upgrade a 8), `has_secure_password` hand-rolled (no Devise),
+> `User#language` (no `preferred_languages` array para MVP), locales
+> `en`/`es`/`ca`, locale switcher diferido a `/profile`.
+>
+> **Simplificación de scope para esta tanda (decidida en `decisions.md`):**
 > - 1 usuario → 1 idioma. El idioma del usuario es **el idioma de la UI**.
-> - Las notasrail(cuando existan) se mostrarán **todas**, sin filtrar por idioma.
+> - Las notas (cuando existan) se mostrarán **todas**, sin filtrar por idioma.
 > - **Sin** auto-traducción.
-> - Esto deprecia temporalmente `User#preferred_languages` (array) → se sustituye por `User#language` (string). Cuando volvamos al filtrado multi-idioma, migramos.
+> - `User#preferred_languages` (array) se posterga; ahora `User#language` (string). Cuando volvamos al filtrado multi-idioma, migramos.
 
 ---
 

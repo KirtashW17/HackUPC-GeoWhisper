@@ -1,0 +1,133 @@
+<%# /notes/new — compose. Lat/lng autofilled by the geolocation
+    Stimulus controller; the rest of the form is plain Rails. %>
+<div class="relative mx-auto flex min-h-screen max-w-md flex-col bg-bg pb-24"
+     data-controller="geolocation">
+  <div class="px-7 pt-12">
+    <%= link_to map_path,
+          class: "mb-4 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-eyebrow text-ink-soft" do %>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+        <path d="M15 6l-6 6 6 6"/>
+      </svg>
+      <%= t("compose.cancel") %>
+    <% end %>
+
+    <p class="mb-1.5 font-mono text-[11px] uppercase tracking-eyebrow text-accent">
+      <%= t("compose.eyebrow") %>
+    </p>
+    <h1 class="text-balance font-serif text-[28px] font-medium leading-8 text-ink tracking-tight">
+      <%= t("compose.headline.prefix") %>
+      <span class="italic text-accent"><%= t("compose.headline.emphasis") %></span>
+      <%= t("compose.headline.suffix") %>
+    </h1>
+  </div>
+
+  <%= form_with model: @form, url: notes_path,
+        scope: :compose_form, local: true,
+        data: { "geolocation-target": "form" },
+        class: "mt-7 flex flex-1 flex-col gap-4 px-7" do |f| %>
+
+    <%# Hidden coords. The geolocation Stimulus controller fills these
+        on connect; the form refuses to submit until they are populated
+        (HTML5 `required`). %>
+    <%= f.hidden_field :latitude,  data: { "geolocation-target": "latitude"  } %>
+    <%= f.hidden_field :longitude, data: { "geolocation-target": "longitude" } %>
+    <%= f.hidden_field :language %>
+
+    <%# Content textarea %>
+    <div class="rounded-card border border-card-edge bg-card px-3.5 py-3"
+         data-controller="counter">
+      <div class="flex items-baseline justify-between">
+        <%= f.label :content, t("compose.fields.content.label"),
+              class: "block font-mono text-[9px] uppercase tracking-eyebrow text-ink-soft" %>
+        <span class="font-mono text-[9px] tracking-eyebrow text-ink-faint"
+              data-counter-target="readout">0 / 500</span>
+      </div>
+      <%= f.text_area :content,
+            placeholder: t("compose.fields.content.placeholder"),
+            rows: 4, maxlength: 500,
+            data: { counter_target: "input", action: "input->counter#refresh" },
+            class: "mt-1 w-full resize-none bg-transparent font-serif text-base leading-6 text-ink outline-none placeholder:text-ink-faint" %>
+    </div>
+
+    <% if @form.errors[:content].any? %>
+      <p role="alert" class="-mt-2.5 px-1 font-sans text-xs font-medium text-error-ink">
+        <%= @form.errors[:content].first %>
+      </p>
+    <% end %>
+
+    <%# TTL %>
+    <div class="rounded-card border border-card-edge bg-card px-3.5 py-3">
+      <%= f.label :ttl_seconds, t("compose.fields.ttl.label"),
+            class: "mb-2 block font-mono text-[9px] uppercase tracking-eyebrow text-ink-soft" %>
+      <div class="flex flex-wrap gap-1.5 font-mono text-[11px]">
+        <% [
+          [t("compose.fields.ttl.options.quarter_hour"), 15.minutes.to_i],
+          [t("compose.fields.ttl.options.hour"),         1.hour.to_i],
+          [t("compose.fields.ttl.options.day"),          1.day.to_i],
+          [t("compose.fields.ttl.options.week"),         1.week.to_i]
+        ].each_with_index do |(label, secs), idx| %>
+          <label class="cursor-pointer">
+            <%= f.radio_button :ttl_seconds, secs,
+                  checked: @form.ttl_seconds == secs || (@form.ttl_seconds.blank? && idx == 1),
+                  class: "peer sr-only" %>
+            <span class="inline-block rounded-full border border-card-edge bg-bg-deep px-3 py-1.5 text-ink-soft peer-checked:border-accent peer-checked:bg-accent peer-checked:text-bg">
+              <%= label %>
+            </span>
+          </label>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Max views %>
+    <div class="rounded-card border border-card-edge bg-card px-3.5 py-3">
+      <%= f.label :max_views, t("compose.fields.max_views.label"),
+            class: "mb-2 block font-mono text-[9px] uppercase tracking-eyebrow text-ink-soft" %>
+      <div class="flex flex-wrap gap-1.5 font-mono text-[11px]">
+        <% [
+          [t("compose.fields.max_views.options.one"),    1],
+          [t("compose.fields.max_views.options.few"),    5],
+          [t("compose.fields.max_views.options.many"),   25],
+          [t("compose.fields.max_views.options.plenty"), 100]
+        ].each_with_index do |(label, value), idx| %>
+          <label class="cursor-pointer">
+            <%= f.radio_button :max_views, value,
+                  checked: @form.max_views == value || (@form.max_views.blank? && idx == 1),
+                  class: "peer sr-only" %>
+            <span class="inline-block rounded-full border border-card-edge bg-bg-deep px-3 py-1.5 text-ink-soft peer-checked:border-accent peer-checked:bg-accent peer-checked:text-bg">
+              <%= label %>
+            </span>
+          </label>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Visibility %>
+    <div class="rounded-card border border-card-edge bg-card px-3.5 py-3">
+      <span class="mb-2 block font-mono text-[9px] uppercase tracking-eyebrow text-ink-soft">
+        <%= t("compose.fields.visibility.label") %>
+      </span>
+      <div class="flex flex-wrap gap-1.5 font-mono text-[11px]">
+        <label class="cursor-pointer">
+          <%= f.radio_button :visibility, "public", checked: true, class: "peer sr-only" %>
+          <span class="inline-block rounded-full border border-card-edge bg-bg-deep px-3 py-1.5 text-ink-soft peer-checked:border-accent peer-checked:bg-accent peer-checked:text-bg">
+            <%= t("compose.fields.visibility.public") %>
+          </span>
+        </label>
+        <% [%w[friends friends], %w[whisper whisper]].each do |value, key| %>
+          <span class="relative inline-block cursor-not-allowed rounded-full border border-card-edge bg-bg-deep px-3 py-1.5 font-mono text-[11px] text-ink-faint opacity-55"
+                title="<%= t('nav.soon') %>">
+            <%= t("compose.fields.visibility.#{key}") %>
+            <span class="ml-1.5 text-[8px] font-semibold tracking-eyebrow"><%= t("nav.soon") %></span>
+          </span>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="flex-1"></div>
+
+    <%= f.submit t("compose.submit"),
+          class: "mt-4 rounded-button bg-accent px-0 py-3.5 font-sans text-base font-semibold tracking-wide text-bg shadow-cta cursor-pointer" %>
+  <% end %>
+
+  <%= render "shared/tab_bar", active: :drop %>
+</div>

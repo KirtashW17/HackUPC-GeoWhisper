@@ -108,6 +108,52 @@ bin/rails tailwindcss:watch
 
 ---
 
+## Probar la app desde un dispositivo móvil (HTTPS vía túnel)
+
+La Geolocation API solo se activa en *secure contexts* (HTTPS). Tu navegador hace una excepción para `localhost` / `127.0.0.1`, **pero no para IPs de red local** (tipo `192.168.x.x`). Si abres el dev server desde el móvil con la IP de tu LAN, el prompt de ubicación nunca aparece y la app se queda en blanco. Para la demo y cualquier prueba móvil necesitamos un **túnel HTTPS**.
+
+### Flujo recomendado: `localhost.run` (sin cuenta)
+
+Solo necesitas un cliente SSH (preinstalado en macOS/Linux; en Windows usa el de Git Bash o WSL).
+
+1. **Terminal 1 — dev server:**
+   ```bash
+   bin/dev
+   ```
+
+2. **Terminal 2 — túnel:**
+   ```bash
+   ssh -R 80:localhost:3000 nokey@localhost.run
+   ```
+
+   La primera vez te pedirá aceptar el host fingerprint (`yes`). Después imprime algo como:
+
+   ```
+   2c4e7f9a8d.lhr.life tunneled with tls termination, https://2c4e7f9a8d.lhr.life
+   ```
+
+3. Abre **esa URL `https://...lhr.life`** en el móvil. El navegador pedirá permiso de ubicación al entrar a `/map`.
+
+**Notas:**
+- La URL **cambia** cada vez que matas y relanzas el túnel. Si la URL queda en una pestaña vieja del móvil tras un reinicio, hay que cargar la URL nueva.
+- La sesión SSH puede colgarse tras un rato de inactividad — `Ctrl+C` y relanzar.
+- `*.lhr.life`, `*.ngrok-free.app`, `*.serveo.net` y `*.trycloudflare.com` ya están autorizados en `config/environments/development.rb` (`config.hosts`).
+
+### Alternativa: `ngrok`
+
+```bash
+npx ngrok http 3000
+```
+
+Pide cuenta gratis la primera vez (`ngrok config add-authtoken …`). Misma idea — devuelve una URL `https://abc-123.ngrok-free.app`. Si demoamos delante de mucha gente y el throughput de `localhost.run` no aguanta, el plan free de ngrok suele ir mejor.
+
+### Cuándo *no* hace falta el túnel
+
+- Si pruebas desde el portátil/desktop apuntando a `http://localhost:3000`, todo funciona sin túnel — el navegador trata `localhost` como secure context.
+- Tests automáticos no llaman a Geolocation (no podemos mockear `navigator.geolocation` sin browser real), así que el túnel no es relevante para la suite.
+
+---
+
 ## Ejecutar los tests
 
 El proyecto usa **MiniTest**, el framework de tests por defecto de Rails.
@@ -145,6 +191,40 @@ bin/rubocop -a
 
 # Análisis estático de seguridad (Brakeman) — obligatorio
 bin/brakeman
+```
+
+---
+
+## Documentación de código (YARD)
+
+Cada función, clase y módulo público debe documentarse con **[YARD](https://yardoc.org/)**. Es **obligatorio**:
+
+- Toda definición pública (métodos, clases, módulos) lleva una docstring con:
+  - Una línea de resumen.
+  - Una etiqueta `@param` por argumento con tipo y descripción.
+  - Una etiqueta `@return` con tipo y descripción.
+  - `@example` cuando la llamada no sea obvia.
+- Métodos `private` pueden omitir la docstring si el nombre y firma son auto-explicativos.
+- Cuando toques código existente sin documentar, **añade YARD** como parte del cambio.
+
+Ejemplo mínimo:
+
+```ruby
+# Returns the canonical post-login redirect URL for the current user.
+#
+# @return [String] welcome URL when the user has not completed onboarding,
+#   otherwise the map URL.
+def post_authentication_url
+  return welcome_url unless Current.user&.onboarded_at
+  map_url
+end
+```
+
+Para generar la documentación HTML localmente:
+
+```bash
+gem install yard          # primera vez
+yardoc 'app/**/*.rb'      # genera ./doc/yard
 ```
 
 ---

@@ -48,6 +48,9 @@ group :development, :test do
 
   # Manage and validate i18n keys (parity, unused, missing) [https://github.com/glebm/i18n-tasks]
   gem "i18n-tasks", "~> 1.0", require: false
+
+  # Generate API documentation from YARD docstrings [https://yardoc.org/]
+  gem "yard", require: false
 end
 
 group :development do

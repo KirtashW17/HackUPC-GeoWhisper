@@ -69,9 +69,101 @@ es:
     cta: Permitir ubicación y empezar
     legal: NUNCA GUARDAMOS DÓNDE HAS ESTADO
   map:
-    placeholder:
-      eyebrow: Próximamente
-      title: El mapa llega después.
-      body: Aquí vivirá Leaflet con OpenStreetMap. De momento, ya estás dentro.
+    header:
+      eyebrow: Cerca
+      whispers:
+        zero: "0 susurros"
+        one: "1 susurro · %{radius}"
+        other: "%{count} susurros · %{radius}"
+      recenter: Centrar en mí
+    toggle:
+      map: Mapa
+      list: Lista
+    loading:
+      title: Mirando alrededor…
+      body: Escuchando el aire en busca de susurros.
+    empty:
+      title: Sin susurros aquí.
+      body: Deja el primero — quien pase después lo encontrará.
+      preview:
+        en: "EN · No ghosts nearby."
+        es: "ES · Sin susurros aquí."
+        ca: "CA · Cap xiuxiueig."
+    peek:
+      empty:
+        title: Sin susurros aquí.
+        body: Sé el primero en dejar un susurro.
+      meta:
+        closest: el más cercano
+        time_left_one: "queda %{count}m"
+        time_left_hour: "quedan %{hours}h %{minutes}m"
+        time_left_day: "quedan %{days}d %{hours}h"
+        time_left_unlimited: "sin límite de tiempo"
+        views_left: "%{remaining} de %{max} lecturas"
+        views_left_unlimited: "lecturas ilimitadas"
+    denied:
+      eyebrow: Necesitamos tu ubicación
+      headline:
+        prefix: "GeoWhisper solo funciona"
+        emphasis: aquí
+        suffix: "."
+      body: "Un susurro no tiene dónde vivir sin un lugar. Permite la ubicación para leer o dejar notas cercanas — nunca guardamos tu rastro."
+      steps:
+        label: Cómo activarlo
+        items:
+          - "Abre Ajustes → Privacidad → Ubicación"
+          - "Busca GeoWhisper en la lista"
+          - "Elige “Mientras uses la app”"
+      retry: Volver a intentar
+      browse_sample: Ver una muestra de susurros públicos
+  nav:
+    map: Mapa
+    drop: Dejar
+    me: Yo
+    soon: Pronto
+  compose:
+    eyebrow: Deja un susurro
+    headline:
+      prefix: "Deja una nota para"
+      emphasis: quien
+      suffix: "pase por aquí después."
+    fields:
+      content:
+        label: Tu susurro
+        placeholder: "Siéntate junto a la ventana — sacan los bollos de azafrán a las 4."
+        counter: "%{count} / 500"
+      ttl:
+        label: Se desvanece en
+        options:
+          quarter_hour: 15 minutos
+          hour: 1 hora
+          day: 1 día
+          week: 1 semana
+      max_views:
+        label: Lecturas permitidas
+        options:
+          one: 1 lectura
+          few: 5 lecturas
+          many: 25 lecturas
+          plenty: 100 lecturas
+      visibility:
+        label: Quién puede leerla
+        public: Cualquiera por aquí
+        friends: Solo amigos
+        whisper: Una sola persona
+    submit: Déjala aquí
+    success_stub: "Susurro dejado en el aire. (Lo guardaremos de verdad cuando llegue el modelo.)"
+    cancel: Cancelar
+  detail:
+    back: Volver al mapa
+    lifecycle:
+      fades_in: Se desvanece en
+      reads_left: Lecturas restantes
+      permanent: Sin límite de tiempo
+      unlimited: Lecturas ilimitadas
+    whisper_back: Responder al susurro
+    not_found:
+      title: Este susurro se ha desvanecido.
+      body: Puede que se haya quedado sin lecturas o que esté fuera del radio. Prueba el mapa.
   errors:
     forbidden: Debes iniciar sesión primero.

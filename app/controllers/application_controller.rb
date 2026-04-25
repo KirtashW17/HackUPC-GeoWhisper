@@ -1,17 +1,39 @@
+# Base class for every controller in the app.
+#
+# Mixes in {Authentication} (so all controllers require sign-in by default)
+# and resolves the request locale on every action via {#set_locale}.
 class ApplicationController < ActionController::Base
   include Authentication
 
-  # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
-  allow_browser versions: :modern
+  # NOTE: `allow_browser versions: :modern` was here. Removed because the
+  # Rails 7.2 detection blocks any User-Agent it doesn't recognise (Vivaldi
+  # ships its own UA string and isn't in the modern bucket; older Firefox
+  # builds also fail). For a hackathon-scope app the guard creates more
+  # problems than it solves. Re-evaluate when polishing for production.
 
   before_action :set_locale
 
   private
 
+  # Set +I18n.locale+ for the duration of the request.
+  #
+  # @return [Symbol] the locale that was applied.
   def set_locale
     I18n.locale = pick_locale
   end
 
+  # Resolve which locale should win for the current request.
+  #
+  # Resolution order (first available match wins):
+  #   1. +?locale=+ query param.
+  #   2. The signed-in user's +language+ column.
+  #   3. The +:locale+ key previously stored in the Rails session
+  #      (set by {LocalesController#update} for anonymous visitors).
+  #   4. The first two-letter tag of the +Accept-Language+ header.
+  #   5. {I18n.default_locale}.
+  #
+  # @return [Symbol] a locale symbol that is guaranteed to be in
+  #   +I18n.available_locales+.
   def pick_locale
     requested = params[:locale].presence&.to_sym
     return requested if I18n.available_locales.include?(requested)

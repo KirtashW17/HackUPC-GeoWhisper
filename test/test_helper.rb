@@ -3,6 +3,11 @@ require_relative "../config/environment"
 require "rails/test_help"
 
 module ActiveSupport
+  # Project-wide MiniTest base case.
+  #
+  # Boots Rails in the +test+ environment, loads every fixture in
+  # +test/fixtures/*.yml+ alphabetically, and parallelizes across one worker
+  # per CPU. Add cross-cutting test helpers here.
   class TestCase
     # Run tests in parallel with specified workers
     parallelize(workers: :number_of_processors)

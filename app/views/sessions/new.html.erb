@@ -17,7 +17,7 @@
     </h1>
 
     <%= form_with url: session_path, local: true, class: "flex flex-col gap-3" do |f| %>
-      <%= auth_form_alert(flash[:alert]) %>
+      <%= auth_form_alert(flash[:form_alert]) %>
 
       <%= auth_field(f, :email,
             label: t("auth.fields.email"),

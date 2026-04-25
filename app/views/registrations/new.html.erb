@@ -17,10 +17,6 @@
     </h1>
 
     <%= form_with model: @user, url: registration_path, local: true, class: "flex flex-col gap-3" do |f| %>
-      <%# Inline per-field errors via auth_field (chosen approach). %>
-      <%# Top-of-form aggregate alternative kept in %>
-      <%# `_top_of_form_aggregate_alert.html.erb` — render it here to A/B. %>
-
       <%= auth_field(f, :email,
             label: t("auth.fields.email"),
             type: :email,

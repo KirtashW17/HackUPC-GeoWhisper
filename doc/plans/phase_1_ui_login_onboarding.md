@@ -1,10 +1,19 @@
-# Plan — Login + Onboarding (con prototipo)
+# Plan — Fase 0 · sub-plan B: Login + Signup + Onboarding (con prototipo)
 
-> Primera tanda de UI tomando como ground-truth el prototipo en `prototype/`.
-> Pantallas: **Login** (root), **Onboarding** y **Signup**.
-> Mobile-first, **responsive** (la app se centra en pantallas grandes, no se rediseña).
+> **Sub-plan B de la Fase 0 ("Fundamentos") en
+> [`task_planning.md`](../task_planning.md).** Cubre la capa visual base
+> (Tailwind + tokens del prototipo), las pantallas de login/signup, el
+> onboarding con Stimulus geolocation y el dispatcher post-login.
+> *(El nombre del fichero `phase_1_*` es histórico: lo escribimos pensando
+> que sería Fase 1 antes de reordenar; lo conservamos para no romper
+> enlaces.)*
 >
-> **Estado: completado al 100%** salvo capturas formales en 3 viewports (smoke test manual confirmado por el usuario en navegador).
+> **Estado: completado al 100%** salvo capturas formales en 3 viewports
+> (smoke test manual confirmado por el usuario en navegador).
+>
+> **Sub-plan A de la misma fase**:
+> [`phase_0_auth_i18n_ci.md`](phase_0_auth_i18n_ci.md). Las decisiones
+> técnicas y motivaciones viven en [`../decisions.md`](../decisions.md).
 
 ---
 

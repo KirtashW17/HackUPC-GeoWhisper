@@ -17,7 +17,7 @@
 
 - **Notas con imagen** — vía Active Storage. Implica decidir compresión y límites.
 - **Notas con audio** ("whispers") — short audio clips, encajan con el nombre del producto.
-- **Reacciones efímeras** — emojis sobre una nota, expiran con ella.
+- **Reacciones efímeras** — emojis sobre una nota, expiran con ella. A evaluar también permitir un texto corto opcional junto al emoji (mini-respuesta), pendiente de decidir alcance vs. un modelo de replies completo.
 
 ## Internacionalización avanzada
 
@@ -56,6 +56,12 @@ Crítico antes de cualquier release público real.
 ## Operativo / infra
 
 - **Admin panel** — *prioridad alta post-MVP*: ver/editar/borrar notas, gestionar reportes, banear usuarios, métricas básicas (notas creadas/día, retención).
+- **Migración a PostgreSQL + PostGIS** — *para escalar la búsqueda geo*. SQLite va sobrado para la demo (decenas de notas), pero `WHERE lat BETWEEN x AND y AND ...` con cientos/miles de notas y radios variables empieza a notarse. Postgres con la extensión PostGIS permite:
+  - Tipo de columna `GEOGRAPHY(Point, 4326)` con índice **GiST** sobre coordenadas reales (no bounding box manual).
+  - `ST_DWithin(coord, point, radius)` — filtrado por distancia indexado, en una sola condición, exacto en metros sobre el geoide.
+  - `ST_Distance` para ordenar por cercanía sin Haversine a mano.
+  - Soporte natural para futuras consultas más complejas (POIs, friend-of-friend dentro de un área, agregaciones por celda).
+  *Coste de migración:* `database.yml` a Postgres, `gem activerecord-postgis-adapter`, una migración que convierte `lat`/`lng decimal` en `coord geography`, y reescribir el scope `nearby` para usar `ST_DWithin`. Estimado: 2–3 horas si se hace antes de tener volumen real. Documentado como "plan de salida" en [`decisions.md`](decisions.md).
 - **Despliegue robusto** — Kamal o Fly.io con HTTPS automático (la geolocalización lo exige fuera de localhost).
 - **Métricas y observabilidad** — Skylight / NewRelic gratuito; al menos logs estructurados.
 - **Rate limiting** — `rack-attack` para creación de notas y endpoints públicos.
@@ -69,6 +75,15 @@ Crítico antes de cualquier release público real.
 
 - **Más idiomas** — añadir `fr`, `de`, `it`, ... según comunidad.
 - **Idioma detectado del navegador** como default antes de que el usuario configure.
+
+## Mapa: refresh y descubrimiento ambiente
+
+- **Refresh periódico del nearby** — hoy el mapa solo carga notas al `connect` del Stimulus controller. Para una experiencia "ambient" (notas que aparecen mientras paseas) se necesita re-fetch periódico:
+  - Polling sencillo cada 30–60 s mientras la pestaña está visible (`visibilitychange` para pausar en background).
+  - O Turbo Streams con un canal por usuario que empuja notas nuevas en su radio.
+  - Cuidado con el rate-limiting de OSM tiles si los markers fuerzan re-render del mapa entero.
+- **Indicador de "alguien acaba de dejar una"** — animación discreta cuando llega una nota nueva en el radio del usuario.
+- **Radio de búsqueda configurable por el usuario** — hoy el radio está hardcoded en el wrapper de `/map` (`data-map-radius-value="5000"`, capado a 5 km en el server). El usuario no puede ajustarlo. *Nice-to-have:* exponer un slider o segmented control en el header del mapa (`100 m / 500 m / 1 km / 5 km`) que actualice el `radiusValue` del Stimulus controller y dispare un re-fetch. Persistir la última elección por usuario (`User#preferred_radius_m`) para que se recuerde entre sesiones. Considerar también vincularlo automáticamente al zoom de Leaflet en lugar de manual.
 
 ---
 

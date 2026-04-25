@@ -1,6 +1,15 @@
 require "test_helper"
 
+# Validations and association behavior for {User}.
+#
+# Covers presence/format/uniqueness on email, supported-language whitelist,
+# email normalization, and the cascading +dependent: :destroy+ on sessions.
 class UserTest < ActiveSupport::TestCase
+  # Build a hash of attributes that satisfy every validation, with optional
+  # overrides for the field under test.
+  #
+  # @param overrides [Hash] keys to overwrite on top of the valid baseline.
+  # @return [Hash{Symbol => Object}] a complete, valid attribute set.
   def valid_attrs(overrides = {})
     {
       email: "alice@example.com",
