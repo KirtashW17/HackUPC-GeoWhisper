@@ -14,5 +14,9 @@ Rails.application.routes.draw do
   resource :session,      only: %i[new create destroy]
   resource :locale,       only: :update
 
-  root "home#index"
+  get  "/welcome", to: "welcome#show",     as: :welcome
+  post "/welcome", to: "welcome#complete", as: :complete_onboarding
+  get  "/map",     to: "map#show",         as: :map
+
+  root "sessions#new"
 end

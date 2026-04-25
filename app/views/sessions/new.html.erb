@@ -17,23 +17,18 @@
     </h1>
 
     <%= form_with url: session_path, local: true, class: "flex flex-col gap-3" do |f| %>
-      <% if flash[:alert].present? && !flash[:alert].is_a?(ActionDispatch::Flash::FlashHash) %>
-        <div class="rounded-card border border-accent/30 bg-accent-soft/40 px-4 py-2.5 text-sm text-accent">
-          <%= flash[:alert] %>
-        </div>
-      <% end %>
+      <%= auth_form_alert(flash[:alert]) %>
 
-      <div class="rounded-card border border-card-edge bg-card px-3.5 py-2.5">
-        <label for="email" class="block font-mono text-[9px] uppercase tracking-eyebrow text-ink-soft"><%= t("auth.fields.email") %></label>
-        <%= email_field_tag :email, params[:email], required: true, autofocus: true, autocomplete: "email",
-              class: "mt-0.5 w-full bg-transparent font-serif text-base text-ink outline-none placeholder:text-ink-faint" %>
-      </div>
+      <%= auth_field(f, :email,
+            label: t("auth.fields.email"),
+            type: :email,
+            autocomplete: "email",
+            autofocus: true) %>
 
-      <div class="rounded-card border border-card-edge bg-card px-3.5 py-2.5">
-        <label for="password" class="block font-mono text-[9px] uppercase tracking-eyebrow text-ink-soft"><%= t("auth.fields.password") %></label>
-        <%= password_field_tag :password, nil, required: true, autocomplete: "current-password",
-              class: "mt-0.5 w-full bg-transparent font-sans text-base text-ink outline-none" %>
-      </div>
+      <%= auth_field(f, :password,
+            label: t("auth.fields.password"),
+            type: :password,
+            autocomplete: "current-password") %>
 
       <div class="my-4 flex items-center gap-2.5 font-mono text-[10px] uppercase tracking-eyebrow text-ink-faint">
         <span class="h-px flex-1 bg-card-edge"></span>

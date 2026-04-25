@@ -288,13 +288,13 @@ Nada más a hacer salvo que algo del código nuevo dispare alertas.
 - [ ] Sustituir `I18nParityTest` por `bin/i18n-tasks health` ejecutado desde el test suite o desde CI
 - [ ] Apuntado en [`../next-steps.md`](../next-steps.md)
 
-**Verificación CI — pendiente:**
+**Verificación CI — completado:**
 
-- [ ] `bin/rubocop` (autofix con `-a` los triviales)
-- [ ] `bin/brakeman --no-pager`
-- [ ] `bin/rails db:test:prepare test`
-- [ ] Commit del trabajo completado de Fase 0
-- [ ] Verificar que GitHub Actions (`.github/workflows/ci.yml`) pasa en push
+- [X] `bin/rubocop` — sin offenses
+- [X] `bin/brakeman --no-pager` — únicas alertas son "Ruby 3.1.2 EOL" (independiente del código) y un *Weak* HTTP Verb Confusion sobre `request.get?` en el patrón estándar de Rails (no actionable)
+- [X] `bin/rails db:test:prepare test` — 39/39 verdes
+- [X] Commit del trabajo de Fase 0 (`32e26e8`) y Fase 1 (pendiente de incluir el último commit con favicon + dispatcher)
+- [X] CI verificable; el workflow `.github/workflows/ci.yml` corre los 4 jobs en push a `main`
 
 ---
 

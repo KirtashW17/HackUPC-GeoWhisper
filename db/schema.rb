@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_04_25_112122) do
+ActiveRecord::Schema[7.2].define(version: 2026_04_25_133620) do
   create_table "sessions", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "ip_address"
@@ -26,6 +26,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_25_112122) do
     t.string "language", default: "en", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "onboarded_at"
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 

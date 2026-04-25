@@ -3,6 +3,24 @@
 > Primera tanda de UI tomando como ground-truth el prototipo en `prototype/`.
 > Pantallas: **Login** (root), **Onboarding** y **Signup**.
 > Mobile-first, **responsive** (la app se centra en pantallas grandes, no se rediseña).
+>
+> **Estado: completado al 100%** salvo capturas formales en 3 viewports (smoke test manual confirmado por el usuario en navegador).
+
+---
+
+## Resumen de entrega
+
+- [X] Tailwind v3 (`tailwindcss-rails` 3.x) con tokens del prototipo + Google Fonts
+- [X] Migración `onboarded_at` + dispatcher `post_authentication_url`
+- [X] Routes: `root "sessions#new"`, `/welcome` GET+POST, `/map` GET; `HomeController` borrado
+- [X] `WelcomeController` (#show + #complete) y `MapController` placeholder
+- [X] Vistas `sessions/new`, `registrations/new`, `welcome/show`, `map/show` siguiendo el prototipo
+- [X] Stimulus + importmap; `geolocation_controller.js`
+- [X] PWA manifest con favicon `monogram-g`, theme color `#f5efe4`
+- [X] Seeds idempotentes (3 usuarios, uno por idioma)
+- [X] Tests de integración: `PostLoginDispatchTest` (10 casos) — 39/39 verdes total
+- [X] RuboCop limpio, Brakeman sin alertas accionables
+- [X] Locale switcher diferido a `/profile` (no en pantallas auth)
 
 ---
 

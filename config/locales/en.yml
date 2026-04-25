@@ -49,5 +49,29 @@ en:
       en: English
       es: Spanish
       ca: Catalan
+  onboarding:
+    eyebrow: GeoWhisper
+    headline:
+      prefix: "Leave a note"
+      emphasis: where you stood
+      suffix: "."
+    subhead: "Whispers only appear to those who walk close enough — and they fade after being read."
+    bullets:
+      anchored:
+        title: Anchored
+        body: A note lives at the place it was dropped.
+      ephemeral:
+        title: Ephemeral
+        body: It vanishes after a time, or after a few reads.
+      quiet:
+        title: Quiet
+        body: No followers, no feed — just here, just now.
+    cta: Allow location & begin
+    legal: WE NEVER STORE WHERE YOU'VE BEEN
+  map:
+    placeholder:
+      eyebrow: Coming soon
+      title: The map lands next.
+      body: Leaflet + OpenStreetMap will live here. For now, you're onboarded.
   errors:
     forbidden: You need to sign in first.

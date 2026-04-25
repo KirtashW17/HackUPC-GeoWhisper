@@ -49,5 +49,29 @@ es:
       en: Inglés
       es: Español
       ca: Catalán
+  onboarding:
+    eyebrow: GeoWhisper
+    headline:
+      prefix: "Deja una nota"
+      emphasis: donde estuviste
+      suffix: "."
+    subhead: "Los susurros solo aparecen a quien pase suficientemente cerca — y se desvanecen tras ser leídos."
+    bullets:
+      anchored:
+        title: Anclada
+        body: Una nota vive en el lugar donde la dejaste.
+      ephemeral:
+        title: Efímera
+        body: Desaparece tras un tiempo, o tras unas pocas lecturas.
+      quiet:
+        title: Silenciosa
+        body: Sin seguidores, sin feed — solo aquí, solo ahora.
+    cta: Permitir ubicación y empezar
+    legal: NUNCA GUARDAMOS DÓNDE HAS ESTADO
+  map:
+    placeholder:
+      eyebrow: Próximamente
+      title: El mapa llega después.
+      body: Aquí vivirá Leaflet con OpenStreetMap. De momento, ya estás dentro.
   errors:
     forbidden: Debes iniciar sesión primero.

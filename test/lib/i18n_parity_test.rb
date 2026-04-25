@@ -8,7 +8,7 @@ class I18nParityTest < ActiveSupport::TestCase
 
     flat_keys = locales.to_h do |loc|
       data = YAML.load_file(LOCALE_DIR.join("#{loc}.yml"))
-      [loc, flatten_keys(data[loc.to_s]).sort]
+      [ loc, flatten_keys(data[loc.to_s]).sort ]
     end
 
     base_locale = flat_keys.keys.first
@@ -29,8 +29,8 @@ class I18nParityTest < ActiveSupport::TestCase
 
   def flatten_keys(hash, prefix = nil)
     hash.flat_map do |key, value|
-      path = [prefix, key].compact.join(".")
-      value.is_a?(Hash) ? flatten_keys(value, path) : [path]
+      path = [ prefix, key ].compact.join(".")
+      value.is_a?(Hash) ? flatten_keys(value, path) : [ path ]
     end
   end
 end

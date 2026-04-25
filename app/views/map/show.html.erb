@@ -1,0 +1,15 @@
+<%# Placeholder: replaced by Leaflet map in Phase 2. %>
+<div class="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center bg-bg px-7 text-center">
+  <p class="mb-3 font-mono text-[11px] uppercase tracking-eyebrow text-accent">
+    <%= t("map.placeholder.eyebrow") %>
+  </p>
+  <h1 class="font-serif text-3xl font-medium text-ink">
+    <%= t("map.placeholder.title") %>
+  </h1>
+  <p class="mt-4 max-w-xs font-serif text-base text-ink-soft">
+    <%= t("map.placeholder.body") %>
+  </p>
+
+  <%= button_to t("layout.sign_out"), session_path, method: :delete,
+        class: "mt-10 rounded-button border border-card-edge bg-card px-5 py-2.5 font-sans text-sm text-ink-soft" %>
+</div>

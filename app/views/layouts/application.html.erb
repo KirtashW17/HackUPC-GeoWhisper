@@ -11,9 +11,11 @@
     <%= yield :head %>
 
     <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
+    <link rel="icon" type="image/svg+xml" href="<%= asset_path("logos/monogram-g/favicon.svg") %>">
+    <link rel="icon" type="image/png" sizes="16x16"  href="<%= asset_path("logos/monogram-g/favicon-16.png") %>">
+    <link rel="icon" type="image/png" sizes="32x32"  href="<%= asset_path("logos/monogram-g/favicon-32.png") %>">
+    <link rel="icon" type="image/png" sizes="48x48"  href="<%= asset_path("logos/monogram-g/favicon-48.png") %>">
+    <link rel="apple-touch-icon" sizes="180x180" href="<%= asset_path("logos/monogram-g/apple-touch-icon.png") %>">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,6 +24,7 @@
 
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
   </head>
 
   <body class="min-h-screen bg-bg text-ink font-serif antialiased">

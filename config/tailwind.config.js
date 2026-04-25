@@ -18,6 +18,8 @@ module.exports = {
         accent:     '#b6552c',
         'accent-soft': '#e8c8a8',
         ghost:      '#7a8b7a',
+        'error-ink': '#c0432b',
+        'error-halo': 'rgba(192, 67, 43, 0.20)',
       },
       fontFamily: {
         serif: ['Newsreader', '"Iowan Old Style"', 'Georgia', 'serif'],

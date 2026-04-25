@@ -19,7 +19,7 @@ module GeoWhisper
     # i18n
     config.i18n.available_locales = %i[en es ca]
     config.i18n.default_locale = :en
-    config.i18n.fallbacks = [:en]
+    config.i18n.fallbacks = [ :en ]
 
     # Configuration for the application, engines, and railties goes here.
     #

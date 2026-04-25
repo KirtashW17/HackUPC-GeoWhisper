@@ -1,50 +1,88 @@
-# GeoWhisper · Prototype
+# GeoWhisper · Prototype build
 
-Static design prototype for GeoWhisper. Pure HTML + JSX (loaded via Babel-in-the-browser) — no build step. Use it as visual reference while implementing the Rails app; **do not import the JSX into the Rails app** (see [`HANDOFF.md`](HANDOFF.md)).
+Self-contained interactive prototype of the GeoWhisper app. Twelve frames in total — the eight core flow screens, two edge states (empty / GPS denied), and two form-validation states (signup / login errors with inline field errors).
 
 ## Run it
 
-The prototype is a static site. Serve it from this folder with any static server. The fastest:
+You need any static-file server, because the prototype uses ES module-style script loading and Babel transpilation that browsers block under `file://`.
+
+### Option A — npx (no install)
 
 ```bash
-npx serve prototype
+cd prototype-build
+npx serve
 ```
 
-…from the project root (or `npx serve .` from inside `prototype/`).
+Then open http://localhost:3000.
 
-`npx` will download `serve` on the fly the first time, then start it on `http://localhost:3000` (or the next free port if 3000 is taken — read the actual URL from the terminal). Open that URL in any modern browser.
-
-Alternative one-liners if `npx` is not available:
+### Option B — Python
 
 ```bash
-python3 -m http.server 3000        # Python ≥ 3
-ruby -run -e httpd . -p 3000       # Ruby
-php -S localhost:3000              # PHP
+cd prototype-build
+python3 -m http.server 8000
 ```
 
-## Once it's running
+Then open http://localhost:8000.
 
-- Open `index.html` (the URL above already points to it).
-- The canvas pans and zooms; click any artboard to focus on it.
-- Phones are partially clickable: bottom tabs work, the peek card opens the detail screen.
+### Option C — drop into your Rails app
 
-## What's where
+Copy this whole folder into `public/prototype/` in your Rails repo. Rails serves `public/` as static, so:
 
-| File | Purpose |
+```bash
+bin/rails server
+```
+
+Then open http://localhost:3000/prototype/.
+
+## What's in the canvas
+
+| Section | Frames |
 |---|---|
-| `index.html` | Entry point — loads everything else. Open this. |
-| `HANDOFF.md` | Design tokens, screen → route mapping, what to port and what not to. **Read this before recreating screens in Rails.** |
-| `themes.js` | Single source of truth for colors and font tokens. |
-| `screens-1.jsx` | Onboarding, map, nearby list, empty, denied. |
-| `screens-2.jsx` | Compose, login, signup. |
-| `screens-3.jsx` | Detail (with fade-out), profile/settings. |
-| `atoms.jsx` | `WhisperCard`, `TabBar`, `ScreenHeader`. |
-| `icons.jsx` | Hairline icon set. |
-| `map.jsx` | Stylized SVG map placeholder — **not to port**, replace with Leaflet + OSM. |
-| `app.jsx`, `design-canvas.jsx`, `ios-frame.jsx` | Presentation chrome — not part of the product. |
+| Soft & Paper · core flow | 01 Onboarding · 02 Sign in · 03 Sign up · 04 Map (home) · 05 Nearby list · 06 Drop a whisper · 07 Read · ink-bleed vanish · 08 Yourself |
+| Edge states | 09 Empty · no ghosts here yet · 10 Location denied |
+| Form validation · inline per-field errors | Sign up · multi-field error · Sign in · server-returned error |
+| Tap-through demo | One live phone — tap the peek card on the map to trigger the read → vanish flow |
 
-## Notes
+## How to interact
 
-- The prototype runs Babel in the browser via a `<script>` CDN, so first paint is a bit slow. That's fine for design review; do not adopt this approach in the Rails app.
-- All assets are local — no API keys, no backend, no network calls beyond the Babel CDN and Google Fonts.
-- If you change anything, just refresh the browser. There is no watcher.
+- **Pan the canvas** with click-drag. Scroll to zoom.
+- **Click any artboard label** to focus it fullscreen. Press Esc to exit.
+- The bottom tab bar in any phone is clickable: Map · Drop · Me.
+- The peek card on the map is clickable — tap it to enter the detail view and watch the ink-bleed vanish play through.
+
+## Files
+
+```
+prototype-build/
+├── index.html              ← entry point
+├── app.jsx                 ← canvas layout & phone scaffolding
+├── design-canvas.jsx       ← presentation harness (pan/zoom/focus)
+├── ios-frame.jsx           ← device chrome
+├── icons.jsx               ← hairline icon set
+├── atoms.jsx               ← shared components (WhisperCard, TabBar, ScreenHeader)
+├── map.jsx                 ← stylized map placeholder
+├── screens-1.jsx           ← onboarding, map, nearby list, empty, denied
+├── screens-2.jsx           ← compose, auth (login + signup, with error state)
+├── screens-3.jsx           ← detail (with ink-bleed vanish), profile/settings
+└── themes.js               ← Soft & Paper tokens
+```
+
+## Design tokens
+
+Embedded in `themes.js`. Reach for these when porting to Tailwind/DaisyUI:
+
+- Paper: `#f5efe4` · Paper-deep: `#ede5d4`
+- Card: `#fffaf0` · Card edge: `rgba(60,40,20,0.08)`
+- Ink: `#2a2118` · Ink-soft: `rgba(42,33,24,0.62)` · Ink-faint: `rgba(42,33,24,0.32)`
+- Accent (terracotta): `#b6552c` · Accent-soft: `#e8c8a8`
+- Ghost: `#7a8b7a`
+- Error: `#c0432b` (used for inline form errors)
+- Type: Newsreader (serif), Inter (sans), JetBrains Mono (mono), Caveat (handwriting, sparingly)
+
+## Notes for the production build
+
+This prototype is a visual reference. **Do not import the JSX into the Rails app.** Recreate the screens with Tailwind/DaisyUI components, using:
+
+- The tokens above as ground truth
+- The `HANDOFF.md` next to the logos for the favicon + lockup integration
+- The form-error pattern shown in the validation frames (red 1.5px border + soft halo, helper text below in sans-12, role="alert", aria-invalid, error clears as user types)

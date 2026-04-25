@@ -17,36 +17,25 @@
     </h1>
 
     <%= form_with model: @user, url: registration_path, local: true, class: "flex flex-col gap-3" do |f| %>
-      <% if @user.errors.any? %>
-        <div class="rounded-card border border-accent/30 bg-accent-soft/40 px-4 py-2.5 text-sm text-accent">
-          <ul class="list-disc pl-4">
-            <% @user.errors.full_messages.each do |msg| %>
-              <li><%= msg %></li>
-            <% end %>
-          </ul>
-        </div>
-      <% end %>
+      <%# Inline per-field errors via auth_field (chosen approach). %>
+      <%# Top-of-form aggregate alternative kept in %>
+      <%# `_top_of_form_aggregate_alert.html.erb` — render it here to A/B. %>
 
-      <div class="rounded-card border border-card-edge bg-card px-3.5 py-2.5">
-        <%= f.label :email, t("auth.fields.email"),
-              class: "block font-mono text-[9px] uppercase tracking-eyebrow text-ink-soft" %>
-        <%= f.email_field :email, required: true, autofocus: true, autocomplete: "email",
-              class: "mt-0.5 w-full bg-transparent font-serif text-base text-ink outline-none placeholder:text-ink-faint" %>
-      </div>
+      <%= auth_field(f, :email,
+            label: t("auth.fields.email"),
+            type: :email,
+            autocomplete: "email",
+            autofocus: true) %>
 
-      <div class="rounded-card border border-card-edge bg-card px-3.5 py-2.5">
-        <%= f.label :password, t("auth.fields.password"),
-              class: "block font-mono text-[9px] uppercase tracking-eyebrow text-ink-soft" %>
-        <%= f.password_field :password, required: true, autocomplete: "new-password",
-              class: "mt-0.5 w-full bg-transparent font-sans text-base text-ink outline-none" %>
-      </div>
+      <%= auth_field(f, :password,
+            label: t("auth.fields.password"),
+            type: :password,
+            autocomplete: "new-password") %>
 
-      <div class="rounded-card border border-card-edge bg-card px-3.5 py-2.5">
-        <%= f.label :password_confirmation, t("auth.fields.password_confirmation"),
-              class: "block font-mono text-[9px] uppercase tracking-eyebrow text-ink-soft" %>
-        <%= f.password_field :password_confirmation, required: true, autocomplete: "new-password",
-              class: "mt-0.5 w-full bg-transparent font-sans text-base text-ink outline-none" %>
-      </div>
+      <%= auth_field(f, :password_confirmation,
+            label: t("auth.fields.password_confirmation"),
+            type: :password,
+            autocomplete: "new-password") %>
 
       <div class="my-4 flex items-center gap-2.5 font-mono text-[10px] uppercase tracking-eyebrow text-ink-faint">
         <span class="h-px flex-1 bg-card-edge"></span>

@@ -276,7 +276,6 @@ GEM
     tailwindcss-rails (3.3.2)
       railties (>= 7.0.0)
       tailwindcss-ruby (~> 3.0)
-    tailwindcss-ruby (3.4.19)
     tailwindcss-ruby (3.4.19-arm64-darwin)
     tailwindcss-ruby (3.4.19-x86_64-darwin)
     tailwindcss-ruby (3.4.19-x86_64-linux)
@@ -307,7 +306,6 @@ GEM
 
 PLATFORMS
   arm64-darwin
-  ruby
   x86_64-darwin
   x86_64-linux
 

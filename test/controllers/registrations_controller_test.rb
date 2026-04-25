@@ -18,7 +18,7 @@ class RegistrationsControllerTest < ActionDispatch::IntegrationTest
         }
       end
     end
-    assert_redirected_to root_url
+    assert_redirected_to welcome_url
   end
 
   test "create with mismatched passwords renders errors" do

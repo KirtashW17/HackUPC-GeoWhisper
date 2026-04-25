@@ -1,0 +1,55 @@
+<div class="relative mx-auto flex min-h-screen max-w-md flex-col bg-bg px-7 pt-16 pb-10">
+  <%# Faded ghost glyphs decorating the background %>
+  <svg class="pointer-events-none absolute left-7 top-24 h-3.5 w-3.5 text-ghost opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+    <path d="M5 11a7 7 0 1 1 14 0v9l-2.5-1.5L14 20l-2.5-1.5L9 20l-2.5-1.5L5 20Z"/>
+    <circle cx="9.5" cy="11" r="1" fill="currentColor"/>
+    <circle cx="14.5" cy="11" r="1" fill="currentColor"/>
+  </svg>
+  <svg class="pointer-events-none absolute right-12 top-36 h-2.5 w-2.5 text-ghost opacity-35" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+    <path d="M5 11a7 7 0 1 1 14 0v9l-2.5-1.5L14 20l-2.5-1.5L9 20l-2.5-1.5L5 20Z"/>
+  </svg>
+  <svg class="pointer-events-none absolute left-16 top-56 h-2 w-2 text-ghost opacity-25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+    <path d="M5 11a7 7 0 1 1 14 0v9l-2.5-1.5L14 20l-2.5-1.5L9 20l-2.5-1.5L5 20Z"/>
+  </svg>
+
+  <div class="flex flex-1 flex-col justify-center">
+    <p class="mb-4 font-mono text-[11px] uppercase tracking-eyebrow text-accent">
+      <%= t("onboarding.eyebrow") %>
+    </p>
+
+    <h1 class="text-balance font-serif text-[44px] font-medium leading-[46px] text-ink tracking-tight">
+      <%= t("onboarding.headline.prefix") %><br>
+      <span class="italic text-accent"><%= t("onboarding.headline.emphasis") %></span><%= t("onboarding.headline.suffix") %>
+    </h1>
+
+    <p class="mt-5 max-w-xs text-pretty font-serif text-base leading-6 text-ink-soft">
+      <%= t("onboarding.subhead") %>
+    </p>
+
+    <ul class="mt-9 flex flex-col gap-3.5">
+      <% %w[anchored ephemeral quiet].each do |key| %>
+        <li class="flex items-start gap-3">
+          <span class="mt-2 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-accent"></span>
+          <div>
+            <p class="font-serif text-base font-semibold text-ink"><%= t("onboarding.bullets.#{key}.title") %></p>
+            <p class="mt-0.5 font-sans text-[13px] text-ink-soft"><%= t("onboarding.bullets.#{key}.body") %></p>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+
+  <%= form_with url: complete_onboarding_path, method: :post, local: true,
+        data: { controller: "geolocation", "geolocation-target": "form" },
+        class: "flex flex-col" do |f| %>
+    <%= hidden_field_tag :geolocation_denied, "0", data: { "geolocation-target": "denied" } %>
+    <button type="submit"
+            data-action="click->geolocation#request"
+            class="rounded-button bg-accent px-0 py-4 font-sans text-base font-semibold tracking-wide text-bg shadow-cta">
+      <%= t("onboarding.cta") %>
+    </button>
+    <p class="mt-3 text-center font-mono text-[10px] uppercase tracking-eyebrow text-ink-faint">
+      <%= t("onboarding.legal") %>
+    </p>
+  <% end %>
+</div>

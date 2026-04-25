@@ -49,5 +49,29 @@ ca:
       en: Anglès
       es: Castellà
       ca: Català
+  onboarding:
+    eyebrow: GeoWhisper
+    headline:
+      prefix: "Deixa una nota"
+      emphasis: on vas estar
+      suffix: "."
+    subhead: "Els xiuxiueigs només apareixen a qui hi passa prou a prop — i s'esvaeixen un cop llegits."
+    bullets:
+      anchored:
+        title: Ancorada
+        body: Una nota viu al lloc on la vas deixar.
+      ephemeral:
+        title: Efímera
+        body: S'esvaeix amb el temps o després d'unes poques lectures.
+      quiet:
+        title: Silenciosa
+        body: Sense seguidors, sense feed — només aquí, només ara.
+    cta: Permet la ubicació i comença
+    legal: MAI GUARDEM ON HAS ESTAT
+  map:
+    placeholder:
+      eyebrow: Aviat
+      title: El mapa arriba després.
+      body: Aquí hi viurà Leaflet amb OpenStreetMap. De moment, ja hi ets dins.
   errors:
     forbidden: Has d'iniciar sessió primer.

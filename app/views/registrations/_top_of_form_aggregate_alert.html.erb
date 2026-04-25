@@ -1,0 +1,14 @@
+<%# DISABLED — alternative approach to per-field inline errors. %>
+<%# Kept here, not rendered anywhere. To enable, render this partial %>
+<%# at the top of registrations/new.html.erb's form. %>
+<%# See doc/next-steps.md → "Decidir entre dos approaches de error en signup". %>
+
+<% if @user.errors.any? %>
+  <div role="alert" class="rounded-card border border-error-ink/40 bg-error-halo/30 px-4 py-2.5 text-sm text-error-ink">
+    <ul class="list-disc pl-4">
+      <% @user.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

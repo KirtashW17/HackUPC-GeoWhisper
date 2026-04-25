@@ -19,7 +19,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_difference("Session.count", 1) do
       post session_path, params: { email: @user.email, password: "secret123" }
     end
-    assert_redirected_to root_url
+    assert_redirected_to welcome_url
     follow_redirect!
     assert_response :success
   end

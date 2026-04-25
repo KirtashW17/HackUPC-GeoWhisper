@@ -166,7 +166,7 @@ function ComposeScreen({ t, onTab, onSend }) {
 }
 
 // ─── Auth — login + signup ────────────────────────────────────────
-function AuthScreen({ t, mode = 'login', onSwitch, onSubmit }) {
+function AuthScreen({ t, mode = 'login', onSwitch, onSubmit, errors = {}, formError }) {
   const isSignup = mode === 'signup';
   return (
     <div style={{ position: 'absolute', inset: 0, background: t.bg, display: 'flex', flexDirection: 'column' }}>
@@ -206,9 +206,9 @@ function AuthScreen({ t, mode = 'login', onSwitch, onSubmit }) {
 
         {/* form */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {isSignup && <AuthField t={t} label="HANDLE" value="@marina" />}
-          <AuthField t={t} label="EMAIL" value="marina@geowhisper.app" />
-          <AuthField t={t} label="PASSWORD" value="••••••••••" type="password" />
+          {isSignup && <AuthField t={t} label="HANDLE" value="@marina" error={errors.handle} />}
+          <AuthField t={t} label="EMAIL" value="marina@geowhisper.app" error={errors.email} />
+          <AuthField t={t} label="PASSWORD" value="••••••••••" type="password" error={errors.password} />
           {isSignup && (
             <div>
               <div style={{ fontFamily: t.mono, fontSize: 10, color: t.inkSoft, letterSpacing: 1.2, marginBottom: 6 }}>
@@ -285,17 +285,48 @@ function AuthScreen({ t, mode = 'login', onSwitch, onSubmit }) {
   );
 }
 
-function AuthField({ t, label, value, type }) {
+function AuthField({ t, label, value, type, error }) {
+  // Inline error pattern: red border on the field + helper text below.
+  // Border is 1.5px instead of 1px so the change reads at a glance without
+  // shifting layout (1px → 1.5px stays on the same pixel grid here).
+  const errorColor = '#c0432b'; // a deeper red that lives in the same warm family as `accent`
   return (
-    <div style={{
-      background: t.card, borderRadius: 12, padding: '10px 14px',
-      border: `1px solid ${t.cardEdge}`,
-    }}>
-      <div style={{ fontFamily: t.mono, fontSize: 9, color: t.inkSoft, letterSpacing: 1.2 }}>{label}</div>
+    <div>
       <div style={{
-        fontFamily: type === 'password' ? t.sans : t.serif,
-        fontSize: 16, color: t.ink, marginTop: 2,
-      }}>{value}</div>
+        background: t.card, borderRadius: 12, padding: '10px 14px',
+        border: error ? `1.5px solid ${errorColor}` : `1px solid ${t.cardEdge}`,
+        boxShadow: error ? `0 0 0 3px ${errorColor}22` : 'none',
+        transition: 'box-shadow 120ms ease',
+      }}
+        // a11y: real impl will wire aria-invalid + aria-describedby={`${id}-err`}
+        aria-invalid={error ? 'true' : undefined}
+      >
+        <div style={{
+          fontFamily: t.mono, fontSize: 9,
+          color: error ? errorColor : t.inkSoft,
+          letterSpacing: 1.2,
+        }}>{label}</div>
+        <div style={{
+          fontFamily: type === 'password' ? t.sans : t.serif,
+          fontSize: 16, color: t.ink, marginTop: 2,
+        }}>{value}</div>
+      </div>
+      {error && (
+        <div role="alert" style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          marginTop: 6, padding: '0 4px',
+          fontFamily: t.sans, fontSize: 12, fontWeight: 500,
+          color: errorColor, letterSpacing: 0.1,
+        }}>
+          {/* small ! glyph — kept inline so it ships without a new icon */}
+          <svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true">
+            <circle cx="6.5" cy="6.5" r="6" fill="none" stroke={errorColor} strokeWidth="1.4" />
+            <path d="M6.5 3.4 V7.2" stroke={errorColor} strokeWidth="1.4" strokeLinecap="round" />
+            <circle cx="6.5" cy="9.3" r="0.8" fill={errorColor} />
+          </svg>
+          <span>{error}</span>
+        </div>
+      )}
     </div>
   );
 }

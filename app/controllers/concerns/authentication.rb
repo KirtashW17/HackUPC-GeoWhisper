@@ -46,7 +46,12 @@ module Authentication
   end
 
   def after_authentication_url
-    session.delete(:return_to_after_authenticating) || root_url
+    session.delete(:return_to_after_authenticating) || post_authentication_url
+  end
+
+  def post_authentication_url
+    return welcome_url unless Current.user&.onboarded_at
+    map_url
   end
 
   def start_new_session_for(user)

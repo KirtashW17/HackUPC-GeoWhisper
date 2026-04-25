@@ -2,6 +2,7 @@ class SessionsController < ApplicationController
   allow_unauthenticated_access only: %i[new create]
 
   def new
+    redirect_to post_authentication_url if authenticated?
   end
 
   def create

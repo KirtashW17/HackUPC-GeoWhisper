@@ -4,7 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-**GeoWhisper** is a Rails 7.2 web app for dropping ephemeral, geolocated "ghost notes" that are only visible to users physically near the spot, and which self-destruct after a TTL (`expires_at`) and/or a max view count (`max_views`). Built during HackUPC. The full product vision (MVP scope, stretch goals, planned domain model) lives in [`doc/inception.md`](doc/inception.md) — read it before designing new features, since the repo is currently a fresh Rails scaffold and most of the domain still needs to be built.
+**GeoWhisper** is a Rails 7.2 web app for dropping ephemeral, geolocated "ghost notes" that are only visible to users physically near the spot, and which self-destruct after a TTL (`expires_at`) and/or a max view count (`max_views`). Built during HackUPC.
+
+Project docs (start here before changing anything substantial):
+- [`doc/inception.md`](doc/inception.md) — product vision, MVP scope, stretch goals.
+- [`doc/architecture.md`](doc/architecture.md) — high-level technical architecture.
+- [`doc/decisions.md`](doc/decisions.md) — decision log: stack, auth, i18n, model conventions, the **why** behind each choice.
+- [`doc/task_planning.md`](doc/task_planning.md) — flat phase list with checkboxes. The **what's left**.
+- [`doc/future.md`](doc/future.md) — post-MVP backlog.
+- [`doc/next-steps.md`](doc/next-steps.md) — small operational follow-ups.
+- [`doc/plans/`](doc/plans/) — detailed plans per sprint.
 
 ## Non-negotiable working rules
 
