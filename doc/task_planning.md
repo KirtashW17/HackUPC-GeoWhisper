@@ -75,14 +75,14 @@
 
 ## Fase 1 — Modelo `Note`
 
-- [ ] Migración `CreateNotes` (`content:text`, `latitude:decimal`, `longitude:decimal`, `expires_at:datetime` *nullable*, `max_views:integer` *nullable*, `views_count:integer default: 0`, `user:references`, `visibility:integer` enum, `language:string` con índice)
-- [ ] Índice compuesto `(latitude, longitude)` para acelerar bounding box
-- [ ] Modelo `Note` con `belongs_to :user`, enum `visibility`
-- [ ] Validaciones: presence (`content`, coords, user), rangos lat/lng, `content.length` 1..500, `expires_at > created_at` si presente, `max_views >= 1` si presente *(sin cap superior a nivel de modelo)*
-- [ ] Scope `active`: `where("expires_at IS NULL OR expires_at > ?", Time.current).where("max_views IS NULL OR views_count < max_views")` *(con TODO sobre redundancia futura tras job de purga)*
-- [ ] Método `view!` que incrementa `views_count` atómicamente; mata la nota si `max_views` presente y alcanzado
-- [ ] Tests: validaciones, scope `active`, `view!`, expiración por tiempo, expiración por views, **caso permanente (`nil/nil`) que persiste indefinidamente**
-- [ ] Seeds: notas geolocalizadas demo atadas a los usuarios existentes (Plaça Reial, EPSEVG, etc.)
+- [X] Migración `CreateNotes` (`content:text`, `latitude:decimal`, `longitude:decimal`, `expires_at:datetime` *nullable*, `max_views:integer` *nullable*, `views_count:integer default: 0`, `user:references`, `visibility:integer` enum, `language:string` con índice)
+- [X] Índice compuesto `(latitude, longitude)` para acelerar bounding box
+- [X] Modelo `Note` con `belongs_to :user`, enum `visibility`
+- [X] Validaciones: presence (`content`, coords, user), rangos lat/lng, `content.length` 1..500, `expires_at > created_at` si presente, `max_views >= 1` si presente *(sin cap superior a nivel de modelo)*
+- [X] Scope `active`: `where("expires_at IS NULL OR expires_at > ?", Time.current).where("max_views IS NULL OR views_count < max_views")` *(con TODO sobre redundancia futura tras job de purga)*
+- [X] Método `view!` que incrementa `views_count` atómicamente; mata la nota si `max_views` presente y alcanzado
+- [X] Tests: validaciones, scope `active`, `view!`, expiración por tiempo, expiración por views, **caso permanente (`nil/nil`) que persiste indefinidamente**
+- [X] Seeds: notas geolocalizadas demo atadas a los usuarios existentes (Plaça Reial, EPSEVG, etc.)
 
 ---
 

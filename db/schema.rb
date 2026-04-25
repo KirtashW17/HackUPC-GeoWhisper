@@ -10,7 +10,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_04_25_133620) do
+ActiveRecord::Schema[7.2].define(version: 2026_04_25_145936) do
+  create_table "notes", force: :cascade do |t|
+    t.text "content", null: false
+    t.decimal "latitude", precision: 10, scale: 6, null: false
+    t.decimal "longitude", precision: 10, scale: 6, null: false
+    t.datetime "expires_at"
+    t.integer "max_views"
+    t.integer "views_count", default: 0, null: false
+    t.integer "user_id", null: false
+    t.integer "visibility", default: 0, null: false
+    t.string "language"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["language"], name: "index_notes_on_language"
+    t.index ["latitude", "longitude"], name: "index_notes_on_latitude_and_longitude"
+    t.index ["longitude"], name: "index_notes_on_longitude"
+    t.index ["user_id"], name: "index_notes_on_user_id"
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "ip_address"
@@ -30,5 +48,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_25_133620) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
+  add_foreign_key "notes", "users"
   add_foreign_key "sessions", "users"
 end
