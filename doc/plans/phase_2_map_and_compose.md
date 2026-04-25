@@ -342,21 +342,22 @@ Si el colega lo implementa diferente (renombra columnas, cambia firma), **abrimo
 
 ---
 
-## Integración con Phase 1 (cuando aterrice el modelo `Note`)
+## Integración con Phase 1 *(completada)*
 
-Cambios al hacer merge:
+Hecha en una segunda tanda dentro de esta misma rama tras el merge del
+colega. Detalle paso a paso en
+[`phase_2_note_integration.md`](phase_2_note_integration.md). Resumen del
+diff de integración:
 
-1. **Borrar** `app/models/notes/catalog.rb` y `test/models/notes/catalog_test.rb`.
-2. **`NotesController`**:
-   - `Notes::Catalog.nearby(...)` → `Note.active.nearby(...)`.
-   - `Notes::Catalog.find(...)` → `Note.active.find(...)`.
-   - `flash + redirect` en `#create` → `Note.create!(@form.to_note_params)` con manejo de errores reales.
-3. **Confirmar** que la firma de `Note.nearby` coincide con el contrato (mismo nombre de keyword args, mismo retorno). Si no, ajustar el controller.
-4. **`view!`** en el detail pasa de no-op a incrementar real.
-5. **Probar end-to-end** que crear una nota la hace visible en el mapa al recargar.
-6. **Borrar tests del Catalog**, escribir/heredar los del modelo real.
+- [X] `Notes::Catalog` y `Notes::Stub` borrados (junto a sus tests).
+- [X] `NotesController` apunta a `Note.active.nearby`, `Note.active.find_by` y `Note.create!` con `rescue ActiveRecord::RecordInvalid`.
+- [X] `Notes::ComposeForm` alineado con el enum real (`public_note/private_note/friends_only`).
+- [X] `Note` extendido con la superficie de presentación que el controller esperaba (`time_left_seconds`, `views_remaining`, `as_json_payload`, `distance_to_m`, `attr_accessor :distance_m`, `Note.nearby`).
+- [X] Fixtures `notes.yml` con 6 entradas; tests del controller refactorizados a `users(:alice)` + `sign_in_as` + `notes(:fixture_name)`.
+- [X] Seeds idempotentes con nota explícita en Campus Nord.
 
-Esta es la única superficie de integración. Si el contrato se respeta, vistas + JS + tabbar + partials + form object no requieren cambios.
+Vistas + JS + tabbar + partials no requirieron cambios estructurales;
+solo se renombró `compose.success_stub` → `compose.success`.
 
 ---
 

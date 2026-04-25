@@ -17,7 +17,7 @@ class Notes::ComposeFormTest < ActiveSupport::TestCase
       ttl_seconds: 1.hour.to_i,
       max_views: 5,
       language: "en",
-      visibility: "public"
+      visibility: "public_note"
     }.merge(overrides)
   end
 
@@ -93,7 +93,7 @@ class Notes::ComposeFormTest < ActiveSupport::TestCase
     assert_equal "Sit by the window — saffron buns at 4.", params[:content]
     assert_equal 41.2236, params[:latitude]
     assert_equal "en", params[:language]
-    assert_equal "public", params[:visibility]
+    assert_equal "public_note", params[:visibility]
     assert_equal 5, params[:max_views]
     assert params[:expires_at]
   end

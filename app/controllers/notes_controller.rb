@@ -1,26 +1,18 @@
 # Whisper-related actions: nearby JSON feed for the map, compose form,
-# create stub, and detail view.
+# create, and detail view.
 #
 # All actions require an onboarded user except {#nearby}, which is the
-# JSON endpoint the map polls and therefore must work for any
-# authenticated visitor regardless of onboarding state.
-#
-# While the real +Note+ ActiveRecord model lives on a colleague's branch
-# this controller talks to {Notes::Catalog} (in-memory stub). When the
-# model lands the calls swap 1:1 — see TODO markers below.
+# JSON endpoint the map polls and therefore must work for any authenticated
+# visitor regardless of onboarding state.
 class NotesController < ApplicationController
   before_action :require_onboarded, except: :nearby
 
   # JSON list of active notes around a coordinate, per the contract in
-  # doc/plans/phase_2_map_and_compose.md. Reads from {Notes::Catalog}
-  # while the real Note model is on a colleague's branch.
+  # +doc/plans/phase_2_map_and_compose.md+.
   #
   # Renders +422 Unprocessable Entity+ when +lat+/+lng+ are missing or
   # outside their valid WGS84 ranges. +radius+ defaults to 1000 m and is
-  # clamped by {Notes::Catalog::MAX_RADIUS_M}.
-  #
-  # TODO[phase-1-merge]: replace +Notes::Catalog.nearby+ with
-  # +Note.active.nearby+ once the Note model lands.
+  # clamped server-side by {Note::MAX_RADIUS_M}.
   #
   # @return [void]
   def nearby
@@ -34,52 +26,57 @@ class NotesController < ApplicationController
     end
 
     radius = (params[:radius].presence || 1_000).to_i
-    notes  = Notes::Catalog.nearby(lat: lat, lng: lng, radius_m: radius)
+    notes  = Note.nearby(lat: lat, lng: lng, radius_m: radius)
 
     render json: { notes: notes.map(&:as_json_payload) }
   end
 
-  # Render the compose form. The form object ({Notes::ComposeForm})
-  # covers validation; the view at +notes/new.html.erb+ renders the
-  # design system's compose UI. Defaults the whisper language to the
-  # current request locale.
+  # Render the compose form. Defaults the whisper language to the current
+  # request locale.
   #
   # @return [void]
   def new
     @form = Notes::ComposeForm.new(language: I18n.locale.to_s)
   end
 
-  # Compose submit — STUBBED.
+  # Persist a new whisper authored by the current user.
   #
-  # On valid input redirects to the map with a success flash; on
-  # invalid input re-renders {#new} with HTTP 422 and the inline field
-  # errors.
-  #
-  # TODO[phase-1-merge]: when the Note model lands in main, replace the
-  # fake-success branch with +Note.create!(@form.to_note_params)+ plus
-  # proper handling of +ActiveRecord::RecordInvalid+.
+  # On valid input creates the {Note} and redirects to +/map+. On invalid
+  # input (form-level or AR-level) re-renders {#new} with HTTP 422 and the
+  # inline field errors.
   #
   # @return [void]
   def create
     @form = Notes::ComposeForm.new(compose_params)
 
     if @form.valid?
-      redirect_to map_path, notice: t("compose.success_stub")
+      Note.create!(@form.to_note_params.merge(user: Current.user))
+      redirect_to map_path, notice: t("compose.success")
     else
       render :new, status: :unprocessable_entity
     end
+  rescue ActiveRecord::RecordInvalid => e
+    e.record.errors.each { |error| @form.errors.add(error.attribute, error.message) }
+    render :new, status: :unprocessable_entity
   end
 
-  # Detail view for a single whisper. Responds with +404 Not Found+ when
-  # no note matches the requested id. Calls +view!+ on the note (no-op
-  # for the stub; will increment +views_count+ once the real model lands).
+  # Detail view for a single whisper. Responds with +404 Not Found+ when no
+  # active note matches the requested id (gone forever once expired or
+  # over-capped — the +active+ scope hides it).
+  #
+  # Calls +view!+ on the note, which increments +views_count+ and archives
+  # it once it reaches +max_views+.
   #
   # @return [void]
   def show
-    @note = Notes::Catalog.find(params[:id])
+    @note = Note.active.find_by(id: params[:id])
     return head :not_found unless @note
 
     @note.view!
+
+    lat = numeric_param(:lat, range: -90.0..90.0)
+    lng = numeric_param(:lng, range: -180.0..180.0)
+    @note.distance_m = @note.distance_to_m(lat, lng) if lat && lng
   end
 
   private

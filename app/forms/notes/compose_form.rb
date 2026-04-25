@@ -22,8 +22,11 @@ module Notes
     UI_MAX_VIEWS_CAP       = 1_000
     # Languages a whisper can be tagged as. Mirrors {User::SUPPORTED_LANGUAGES}.
     SUPPORTED_LANGUAGES    = %w[en es ca].freeze
-    # Visibility scopes accepted by the form. Mirrors the future Note enum.
-    SUPPORTED_VISIBILITIES = %w[public friends whisper].freeze
+    # Visibility scopes accepted by the form. Mirrors {Note.visibilities}
+    # exactly so the form value can be passed straight to +Note.create!+
+    # without translation. UI labels are translated separately via i18n
+    # (+compose.fields.visibility.{public,friends,whisper}+).
+    SUPPORTED_VISIBILITIES = %w[public_note private_note friends_only].freeze
 
     attribute :content, :string
     attribute :latitude, :float
@@ -31,7 +34,7 @@ module Notes
     attribute :ttl_seconds, :integer
     attribute :max_views, :integer
     attribute :language, :string, default: "en"
-    attribute :visibility, :string, default: "public"
+    attribute :visibility, :string, default: "public_note"
 
     validates :content, presence: true, length: { maximum: CONTENT_MAX }
     validates :latitude,  presence: true,

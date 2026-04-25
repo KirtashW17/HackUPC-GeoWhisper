@@ -22,23 +22,67 @@
     @apply pointer-events-none relative;
   }
   .gw-pin-here__dot {
-    @apply absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ghost ring-2 ring-bg;
+    @apply absolute left-1/2 top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ghost ring-[3px] ring-bg;
   }
   .gw-pin-here__pulse {
-    @apply absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ghost/40;
+    @apply absolute left-1/2 top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ghost/40;
     animation: gw-pulse-here 2s ease-out infinite;
   }
 
   .gw-pin {
-    @apply relative;
+    @apply pointer-events-none relative;
   }
   .gw-pin__dot {
-    @apply block h-3 w-3 rounded-full bg-accent ring-2 ring-bg shadow-[0_0_0_4px_rgba(182,85,44,0.18)];
+    @apply absolute left-1/2 top-1/2 block h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent ring-[3px] ring-bg shadow-[0_2px_6px_-1px_rgba(182,85,44,0.55)];
+  }
+  .gw-pin__pulse {
+    @apply absolute left-1/2 top-1/2 h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/40;
+    animation: gw-pulse-here 2.4s ease-out infinite;
   }
 
   .gw-loading-pulse {
     @apply h-3 w-3 rounded-full bg-accent;
     animation: gw-pulse-soft 1.6s ease-out infinite;
+  }
+
+  /* Themed <input type="range"> for the compose max_views slider. */
+  .gw-range {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    outline: none;
+    height: 22px;
+  }
+  .gw-range::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(42, 33, 24, 0.12);
+  }
+  .gw-range::-moz-range-track {
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(42, 33, 24, 0.12);
+  }
+  .gw-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 18px;
+    width: 18px;
+    border-radius: 9999px;
+    background: #b6552c;
+    border: 2px solid #fffaf0;
+    margin-top: -7px;
+    box-shadow: 0 2px 6px -1px rgba(182, 85, 44, 0.55);
+    cursor: pointer;
+  }
+  .gw-range::-moz-range-thumb {
+    height: 18px;
+    width: 18px;
+    border-radius: 9999px;
+    background: #b6552c;
+    border: 2px solid #fffaf0;
+    box-shadow: 0 2px 6px -1px rgba(182, 85, 44, 0.55);
+    cursor: pointer;
   }
 }
 
@@ -59,8 +103,12 @@
  * no tile provider change — drop this block if we ever move to a
  * pre-styled tile source. */
 @layer components {
-  .leaflet-container       { background: #ede5d4; }
-  .leaflet-tile-pane       { filter: sepia(0.42) saturate(0.55) hue-rotate(-14deg) brightness(1.05) contrast(0.92); }
+  .leaflet-container       { background: #faf5ea; }
+  /* Paper-light: nudge OSM toward warm white instead of sepia. Just
+     enough sepia/hue-rotate to drop the OSM blues/greens into the warm
+     family, but high brightness + low contrast so streets read as ink
+     on cream rather than as an aged map. */
+  .leaflet-tile-pane       { filter: sepia(0.18) saturate(0.55) hue-rotate(-6deg) brightness(1.18) contrast(0.88); opacity: 0.92; }
   .leaflet-tile-pane img   { mix-blend-mode: multiply; }
 
   .leaflet-control-attribution {

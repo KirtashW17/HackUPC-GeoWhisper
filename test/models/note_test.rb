@@ -152,4 +152,132 @@ class NoteTest < ActiveSupport::TestCase
     assert note.user
     assert_equal @user, note.user
   end
+
+  # ── Presentation surface (consumed by NotesController + map JSON) ──
+
+  test "time_left_seconds returns nil for permanent notes" do
+    note = Note.new(valid_attrs(expires_at: nil))
+    assert_nil note.time_left_seconds
+  end
+
+  test "time_left_seconds returns the gap to expires_at, floored at 0" do
+    note = Note.new(valid_attrs(expires_at: Time.current + 30.minutes))
+    assert_in_delta 30 * 60, note.time_left_seconds, 5
+
+    note.expires_at = 1.minute.ago
+    assert_equal 0, note.time_left_seconds
+  end
+
+  test "views_remaining returns nil when max_views is nil" do
+    note = Note.new(valid_attrs(max_views: nil, views_count: 12))
+    assert_nil note.views_remaining
+  end
+
+  test "views_remaining returns max_views minus views_count, floored at 0" do
+    note = Note.new(valid_attrs(max_views: 5, views_count: 2))
+    assert_equal 3, note.views_remaining
+
+    over = Note.new(valid_attrs(max_views: 5, views_count: 10))
+    assert_equal 0, over.views_remaining
+  end
+
+  test "distance_to_m returns 0 when comparing a note against its own coords" do
+    note = Note.new(valid_attrs(latitude: 41.3892, longitude: 2.1133))
+    assert_equal 0, note.distance_to_m(41.3892, 2.1133)
+  end
+
+  test "distance_to_m matches the Haversine reference for known points" do
+    # Plaça Reial (41.3801, 2.1749) → Campus Nord (41.3892, 2.1133): ~5.3 km.
+    placa = Note.new(valid_attrs(latitude: 41.3801, longitude: 2.1749))
+    assert_in_delta 5_300, placa.distance_to_m(41.3892, 2.1133), 200
+  end
+
+  test "as_json_payload exposes only the contract keys" do
+    note = Note.create!(valid_attrs(language: "ca", max_views: 4,
+                                    expires_at: 1.hour.from_now))
+    note.distance_m = 42
+
+    payload = note.as_json_payload
+    assert_equal %i[id content latitude longitude distance_m language
+                    time_left_seconds views_remaining].sort,
+                 payload.keys.sort
+    assert_equal note.id, payload[:id]
+    assert_equal 42, payload[:distance_m]
+    assert_equal "ca", payload[:language]
+    assert_equal 4, payload[:views_remaining]
+  end
+
+  # ── .nearby class method ──────────────────────────────────────
+
+  test "nearby returns active notes within the given radius" do
+    here = Note.create!(valid_attrs(latitude: 41.3892, longitude: 2.1133,
+                                    content: "right here"))
+
+    results = Note.nearby(lat: 41.3892, lng: 2.1133, radius_m: 500)
+    assert_includes results.map(&:id), here.id
+  end
+
+  test "nearby populates distance_m on each returned note" do
+    Note.create!(valid_attrs(latitude: 41.3892, longitude: 2.1133,
+                             content: "here"))
+    results = Note.nearby(lat: 41.3892, lng: 2.1133, radius_m: 1_000)
+    assert(results.all? { |n| n.distance_m.is_a?(Numeric) })
+  end
+
+  test "nearby orders results by ascending distance" do
+    Note.create!(valid_attrs(latitude: 41.3892, longitude: 2.1133, content: "near"))
+    Note.create!(valid_attrs(latitude: 41.3950, longitude: 2.1133, content: "mid"))
+    Note.create!(valid_attrs(latitude: 41.4040, longitude: 2.1133, content: "far"))
+
+    results = Note.nearby(lat: 41.3892, lng: 2.1133, radius_m: 5_000)
+    distances = results.map(&:distance_m)
+    assert_equal distances.sort, distances
+  end
+
+  test "nearby excludes notes outside the radius" do
+    Note.create!(valid_attrs(latitude: 41.3892, longitude: 2.1133, content: "here"))
+    far = Note.create!(valid_attrs(latitude: 41.5000, longitude: 2.5000, content: "far"))
+
+    results = Note.nearby(lat: 41.3892, lng: 2.1133, radius_m: 1_000)
+    assert_not_includes results.map(&:id), far.id
+  end
+
+  test "nearby excludes expired notes" do
+    expired = Note.create!(valid_attrs(latitude: 41.3892, longitude: 2.1133,
+                                       expires_at: 2.hours.from_now,
+                                       content: "soon"))
+    expired.update_column(:expires_at, 1.hour.ago)
+
+    results = Note.nearby(lat: 41.3892, lng: 2.1133, radius_m: 1_000)
+    assert_not_includes results.map(&:id), expired.id
+  end
+
+  test "nearby excludes over-capped notes" do
+    capped = Note.create!(valid_attrs(latitude: 41.3892, longitude: 2.1133,
+                                      max_views: 1, content: "limit"))
+    capped.view!
+
+    results = Note.nearby(lat: 41.3892, lng: 2.1133, radius_m: 1_000)
+    assert_not_includes results.map(&:id), capped.id
+  end
+
+  test "nearby caps the radius at MAX_RADIUS_M" do
+    Note.create!(valid_attrs(latitude: 41.3892, longitude: 2.1133, content: "here"))
+    too_far = Note.create!(valid_attrs(latitude: 42.0,    longitude: 3.0,
+                                       content: "way too far"))
+
+    results = Note.nearby(lat: 41.3892, lng: 2.1133, radius_m: 1_000_000)
+    assert_not_includes results.map(&:id), too_far.id
+  end
+
+  test "nearby includes permanent and unlimited-view notes" do
+    permanent = Note.create!(valid_attrs(latitude: 41.3892, longitude: 2.1133,
+                                         expires_at: nil, content: "forever"))
+    unlimited = Note.create!(valid_attrs(latitude: 41.3893, longitude: 2.1133,
+                                         max_views: nil, content: "no cap"))
+
+    ids = Note.nearby(lat: 41.3892, lng: 2.1133, radius_m: 1_000).map(&:id)
+    assert_includes ids, permanent.id
+    assert_includes ids, unlimited.id
+  end
 end

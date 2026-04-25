@@ -76,6 +76,15 @@ Crítico antes de cualquier release público real.
 - **Más idiomas** — añadir `fr`, `de`, `it`, ... según comunidad.
 - **Idioma detectado del navegador** como default antes de que el usuario configure.
 
+## Refactor: presenter para la presentación de `Note`
+
+- **Estado actual:** `Note` mezcla persistencia y presentación — expone `time_left_seconds`, `views_remaining`, `as_json_payload`, `distance_to_m` y un `attr_accessor :distance_m` que es estado no persistido. Pragmático para hackathon (mantiene una superficie estable para `NotesController` y los views), feo a futuro.
+- **Plan:** extraer a un presenter / serializer dedicado. Opciones evaluables:
+  - `Notes::NearbyResult = Data.define(:note, :distance_m)` con métodos delegados — preserva inmutabilidad del AR record.
+  - Serializer estilo Jbuilder (`app/views/notes/_note.json.jbuilder`) para el payload JSON, dejando solo presentación HTML en el modelo.
+  - Alba o ActiveModel::Serializer si el proyecto crece a múltiples consumidores.
+- **Cuándo:** cuando el modelo `Note` empiece a tener varios consumidores con shapes distintos (API móvil, webhooks, admin) o cuando llegue el primer test de regresión por mezclar concerns.
+
 ## Mapa: refresh y descubrimiento ambiente
 
 - **Refresh periódico del nearby** — hoy el mapa solo carga notas al `connect` del Stimulus controller. Para una experiencia "ambient" (notas que aparecen mientras paseas) se necesita re-fetch periódico:

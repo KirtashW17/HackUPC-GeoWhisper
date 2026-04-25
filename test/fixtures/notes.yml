@@ -1,5 +1,79 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+# Demo whispers used across the test suite. The IDs are auto-assigned;
+# tests should reference fixtures by name (`notes(:campus_nord_vending)`),
+# never by literal id.
+#
+# Coordinates pin the three demo locations the seeds also use:
+#   • EPSEVG       (Vilanova i la Geltrú) ≈ 41.2236, 1.7280
+#   • Plaça Reial  (Barri Gòtic)          ≈ 41.3801, 2.1749
+#   • Campus Nord  (UPC, Barcelona)        ≈ 41.3892, 2.1133
+#
+# Time-sensitive fields are computed via ERB so each test run gets a fresh
+# window. Margins are wide (1 hour past / 1 day future) so the suite stays
+# stable even if loading takes a few seconds.
 
-# Notes are created in tests via the valid_attrs helper method
-# No fixtures needed here
+epsevg_saffron:
+  user: alice
+  content: "Sit by the window — they bring out the saffron buns at 4."
+  latitude: 41.2238
+  longitude: 1.7282
+  expires_at: <%= 4.hours.from_now.iso8601 %>
+  max_views: 8
+  views_count: 3
+  language: en
+  visibility: 0
 
+placa_reial_lampposts:
+  user: alice
+  content: "Look up. The lampposts in this square were Gaudí's first commission."
+  latitude: 41.3801
+  longitude: 2.1749
+  expires_at: <%= 3.days.from_now.iso8601 %>
+  max_views: 100
+  views_count: 38
+  language: en
+  visibility: 0
+
+campus_nord_vending:
+  user: carla
+  content: "The vending machine on B6 still takes coins. The one on A4 doesn't."
+  latitude: 41.3892
+  longitude: 2.1133
+  expires_at: <%= 5.days.from_now.iso8601 %>
+  max_views: # unlimited reads
+  views_count: 0
+  language: en
+  visibility: 0
+
+permanent_term:
+  user: carla
+  content: "If you've made it this far into the term, you're going to be alright."
+  latitude: 41.2236
+  longitude: 1.7280
+  expires_at: # permanent
+  max_views: 200
+  views_count: 47
+  language: en
+  visibility: 0
+
+expired_brunch:
+  user: alice
+  content: "Hackathon brunch a les 10 a la cafeteria. (Ja ha passat.)"
+  latitude: 41.2240
+  longitude: 1.7278
+  expires_at: <%= 1.hour.ago.iso8601 %>
+  max_views: 50
+  views_count: 12
+  language: ca
+  visibility: 0
+
+archived_projector:
+  user: alice
+  content: "El proyector del aula 04 viene con cable HDMI; no hace falta el adaptador."
+  latitude: 41.2234
+  longitude: 1.7290
+  expires_at: <%= 6.hours.from_now.iso8601 %>
+  max_views: 3
+  views_count: 3
+  language: es
+  visibility: 0
+  archived: true

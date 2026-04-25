@@ -141,6 +141,9 @@ en:
           week: 1 week
       max_views:
         label: Reads allowed
+        readout:
+          one: "1 read"
+          other: "%{count} reads"
         options:
           one: 1 read
           few: 5 reads
@@ -152,16 +155,23 @@ en:
         friends: Friends only
         whisper: Just one person
     submit: Leave it here
-    success_stub: "Whisper left in the air. (We'll really save it once the model lands.)"
+    success: "Whisper left in the air."
     cancel: Cancel
+    back: Back to the map
+    location:
+      placeholder: "Locked to your spot"
   detail:
     back: Back to map
+    eyebrow:
+      distance: "%{meters}m away"
+      left_ago: "left %{time} ago"
     lifecycle:
       fades_in: Fades in
       reads_left: Reads left
       permanent: No time limit
       unlimited: Unlimited reads
     whisper_back: Whisper back
+    report: Report
     not_found:
       title: This whisper has vanished.
       body: It might have run out of reads or fallen out of the radius. Try the map.

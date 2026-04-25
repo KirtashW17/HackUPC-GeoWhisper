@@ -1,16 +1,30 @@
-<%# /notes/new — compose. Lat/lng autofilled by the geolocation
-    Stimulus controller; the rest of the form is plain Rails. %>
-<div class="relative mx-auto flex min-h-screen max-w-md flex-col bg-bg pb-24"
+<%# /notes/new — compose. Lat/lng autofilled by the geolocation Stimulus
+    controller; the rest of the form is plain Rails.
+    The bottom tab bar is intentionally NOT rendered here — compose is
+    itself an action, not a navigation hub. The back arrow returns to /map. %>
+<div class="relative mx-auto flex min-h-screen max-w-md flex-col bg-bg pb-10"
      data-controller="geolocation">
-  <div class="px-7 pt-12">
+
+  <%# Top bar: back button (left) + location chip (right). %>
+  <div class="flex items-center justify-between gap-3 px-5 pt-12">
     <%= link_to map_path,
-          class: "mb-4 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-eyebrow text-ink-soft" do %>
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          aria: { label: t("compose.back") },
+          class: "flex h-9 w-9 shrink-0 items-center justify-center rounded-card border border-card-edge bg-card text-ink shadow-card" do %>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
         <path d="M15 6l-6 6 6 6"/>
       </svg>
-      <%= t("compose.cancel") %>
     <% end %>
+    <span data-compose-location
+          class="inline-flex max-w-[70%] items-center gap-1.5 truncate rounded-full border border-card-edge bg-card px-3 py-2 font-mono text-[10px] uppercase tracking-eyebrow text-ink-soft shadow-card">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b6552c" stroke-width="1.6" aria-hidden="true">
+        <path d="M12 2c-3.866 0-7 3.134-7 7 0 5.25 7 13 7 13s7-7.75 7-13c0-3.866-3.134-7-7-7Z"/>
+        <circle cx="12" cy="9" r="2.6" fill="#b6552c"/>
+      </svg>
+      <%= t("compose.location.placeholder") %>
+    </span>
+  </div>
 
+  <div class="px-7 pt-5">
     <p class="mb-1.5 font-mono text-[11px] uppercase tracking-eyebrow text-accent">
       <%= t("compose.eyebrow") %>
     </p>
@@ -24,17 +38,16 @@
   <%= form_with model: @form, url: notes_path,
         scope: :compose_form, local: true,
         data: { "geolocation-target": "form" },
-        class: "mt-7 flex flex-1 flex-col gap-4 px-7" do |f| %>
+        class: "mt-5 flex flex-1 flex-col gap-4 px-7" do |f| %>
 
-    <%# Hidden coords. The geolocation Stimulus controller fills these
-        on connect; the form refuses to submit until they are populated
-        (HTML5 `required`). %>
+    <%# Hidden coords. Filled in by the geolocation Stimulus controller on
+        connect; the form refuses to submit without them server-side. %>
     <%= f.hidden_field :latitude,  data: { "geolocation-target": "latitude"  } %>
     <%= f.hidden_field :longitude, data: { "geolocation-target": "longitude" } %>
     <%= f.hidden_field :language %>
 
     <%# Content textarea %>
-    <div class="rounded-card border border-card-edge bg-card px-3.5 py-3"
+    <div class="rounded-card border border-card-edge bg-card px-3.5 py-3 shadow-card"
          data-controller="counter">
       <div class="flex items-baseline justify-between">
         <%= f.label :content, t("compose.fields.content.label"),
@@ -55,16 +68,60 @@
       </p>
     <% end %>
 
-    <%# TTL %>
-    <div class="rounded-card border border-card-edge bg-card px-3.5 py-3">
+    <%# Visibility — icon buttons. Only `public_note` is enabled for now;
+        `friends_only` and `private_note` carry a SOON badge and
+        `aria-disabled="true"` so AT users skip them. %>
+    <div data-compose-visibility
+         class="rounded-card border border-card-edge bg-card px-3.5 py-3 shadow-card">
+      <div class="mb-2 flex items-center justify-between font-mono text-[9px] uppercase tracking-eyebrow text-ink-soft">
+        <span><%= t("compose.fields.visibility.label") %></span>
+        <span class="rounded-sm bg-bg-deep px-1.5 py-0.5 text-[8px] tracking-eyebrow text-ink-soft">
+          <%= t("nav.soon") %>
+        </span>
+      </div>
+      <div class="flex gap-1.5">
+        <label class="flex-1 cursor-pointer">
+          <%= f.radio_button :visibility, "public_note", checked: true, class: "peer sr-only" %>
+          <span class="flex flex-col items-center gap-1 rounded-card border border-card-edge bg-card py-2.5 font-sans text-[11px] font-semibold text-ink peer-checked:border-ink peer-checked:bg-ink peer-checked:text-bg">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M3 12h18"/>
+              <path d="M12 3a14 14 0 0 1 0 18"/>
+              <path d="M12 3a14 14 0 0 0 0 18"/>
+            </svg>
+            <%= t("compose.fields.visibility.public") %>
+          </span>
+        </label>
+        <span aria-disabled="true"
+              title="<%= t('nav.soon') %>"
+              class="flex flex-1 cursor-not-allowed flex-col items-center gap-1 rounded-card border border-card-edge bg-card py-2.5 font-sans text-[11px] font-semibold text-ink-faint opacity-55">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+            <circle cx="12" cy="8" r="3.5"/>
+            <path d="M5 20c1.5-3.5 4.5-5 7-5s5.5 1.5 7 5"/>
+          </svg>
+          <%= t("compose.fields.visibility.friends") %>
+        </span>
+        <span aria-disabled="true"
+              title="<%= t('nav.soon') %>"
+              class="flex flex-1 cursor-not-allowed flex-col items-center gap-1 rounded-card border border-card-edge bg-card py-2.5 font-sans text-[11px] font-semibold text-ink-faint opacity-55">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+            <path d="M3 21c5-2 8-5 12-9l5-5-3-3-5 5c-4 4-7 7-9 12Z"/>
+          </svg>
+          <%= t("compose.fields.visibility.whisper") %>
+        </span>
+      </div>
+    </div>
+
+    <%# TTL — quick-pick chips %>
+    <div class="rounded-card border border-card-edge bg-card px-3.5 py-3 shadow-card">
       <%= f.label :ttl_seconds, t("compose.fields.ttl.label"),
             class: "mb-2 block font-mono text-[9px] uppercase tracking-eyebrow text-ink-soft" %>
       <div class="flex flex-wrap gap-1.5 font-mono text-[11px]">
         <% [
-          [t("compose.fields.ttl.options.quarter_hour"), 15.minutes.to_i],
-          [t("compose.fields.ttl.options.hour"),         1.hour.to_i],
-          [t("compose.fields.ttl.options.day"),          1.day.to_i],
-          [t("compose.fields.ttl.options.week"),         1.week.to_i]
+          [ t("compose.fields.ttl.options.quarter_hour"), 15.minutes.to_i ],
+          [ t("compose.fields.ttl.options.hour"),         1.hour.to_i ],
+          [ t("compose.fields.ttl.options.day"),          1.day.to_i ],
+          [ t("compose.fields.ttl.options.week"),         1.week.to_i ]
         ].each_with_index do |(label, secs), idx| %>
           <label class="cursor-pointer">
             <%= f.radio_button :ttl_seconds, secs,
@@ -78,48 +135,24 @@
       </div>
     </div>
 
-    <%# Max views %>
-    <div class="rounded-card border border-card-edge bg-card px-3.5 py-3">
-      <%= f.label :max_views, t("compose.fields.max_views.label"),
-            class: "mb-2 block font-mono text-[9px] uppercase tracking-eyebrow text-ink-soft" %>
-      <div class="flex flex-wrap gap-1.5 font-mono text-[11px]">
-        <% [
-          [t("compose.fields.max_views.options.one"),    1],
-          [t("compose.fields.max_views.options.few"),    5],
-          [t("compose.fields.max_views.options.many"),   25],
-          [t("compose.fields.max_views.options.plenty"), 100]
-        ].each_with_index do |(label, value), idx| %>
-          <label class="cursor-pointer">
-            <%= f.radio_button :max_views, value,
-                  checked: @form.max_views == value || (@form.max_views.blank? && idx == 1),
-                  class: "peer sr-only" %>
-            <span class="inline-block rounded-full border border-card-edge bg-bg-deep px-3 py-1.5 text-ink-soft peer-checked:border-accent peer-checked:bg-accent peer-checked:text-bg">
-              <%= label %>
-            </span>
-          </label>
-        <% end %>
+    <%# Max views — range slider with live readout %>
+    <div class="rounded-card border border-card-edge bg-card px-3.5 py-3 shadow-card"
+         data-controller="range-readout"
+         data-range-readout-template-one-value="<%= t('compose.fields.max_views.readout.one', count: 1) %>"
+         data-range-readout-template-other-value="<%= t('compose.fields.max_views.readout.other', count: '%{count}') %>">
+      <div class="flex items-baseline justify-between">
+        <%= f.label :max_views, t("compose.fields.max_views.label"),
+              class: "block font-mono text-[9px] uppercase tracking-eyebrow text-ink-soft" %>
+        <span class="font-serif text-[13px] font-semibold text-accent"
+              data-range-readout-target="readout"></span>
       </div>
-    </div>
-
-    <%# Visibility %>
-    <div class="rounded-card border border-card-edge bg-card px-3.5 py-3">
-      <span class="mb-2 block font-mono text-[9px] uppercase tracking-eyebrow text-ink-soft">
-        <%= t("compose.fields.visibility.label") %>
-      </span>
-      <div class="flex flex-wrap gap-1.5 font-mono text-[11px]">
-        <label class="cursor-pointer">
-          <%= f.radio_button :visibility, "public", checked: true, class: "peer sr-only" %>
-          <span class="inline-block rounded-full border border-card-edge bg-bg-deep px-3 py-1.5 text-ink-soft peer-checked:border-accent peer-checked:bg-accent peer-checked:text-bg">
-            <%= t("compose.fields.visibility.public") %>
-          </span>
-        </label>
-        <% [%w[friends friends], %w[whisper whisper]].each do |value, key| %>
-          <span class="relative inline-block cursor-not-allowed rounded-full border border-card-edge bg-bg-deep px-3 py-1.5 font-mono text-[11px] text-ink-faint opacity-55"
-                title="<%= t('nav.soon') %>">
-            <%= t("compose.fields.visibility.#{key}") %>
-            <span class="ml-1.5 text-[8px] font-semibold tracking-eyebrow"><%= t("nav.soon") %></span>
-          </span>
-        <% end %>
+      <%= f.range_field :max_views,
+            min: 1, max: 100, step: 1,
+            value: @form.max_views || 5,
+            data: { range_readout_target: "input", action: "input->range-readout#refresh" },
+            class: "gw-range mt-2 w-full" %>
+      <div class="mt-1 flex justify-between font-mono text-[9px] text-ink-faint">
+        <span>1</span><span>5</span><span>25</span><span>100</span>
       </div>
     </div>
 
@@ -128,6 +161,4 @@
     <%= f.submit t("compose.submit"),
           class: "mt-4 rounded-button bg-accent px-0 py-3.5 font-sans text-base font-semibold tracking-wide text-bg shadow-cta cursor-pointer" %>
   <% end %>
-
-  <%= render "shared/tab_bar", active: :drop %>
 </div>

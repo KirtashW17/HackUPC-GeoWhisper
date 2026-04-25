@@ -1,35 +1,60 @@
-<%# /notes/:id — detail view for a single whisper.
-    The fade-out + ink-bleed animation from the prototype is reduced to
-    a CSS opacity transition; full vanish lives in Phase 5. %>
-<div class="relative mx-auto flex min-h-screen max-w-md flex-col bg-bg pb-24 px-7 pt-12">
-  <%= link_to map_path,
-        class: "mb-4 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-eyebrow text-ink-soft" do %>
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-      <path d="M15 6l-6 6 6 6"/>
+<%# /notes/:id — detail view for a single whisper. Mirrors
+    prototype/screens-3.jsx (DetailScreen). The full ink-bleed vanish
+    animation is deferred to phase 5; here it stays a static card. %>
+<div class="relative mx-auto flex min-h-screen max-w-md flex-col bg-bg px-6 pb-10 pt-12">
+  <%# Square back button — matches the chevron-in-card pattern from /notes/new. %>
+  <div class="flex">
+    <%= link_to map_path,
+          aria: { label: t("detail.back") },
+          class: "flex h-9 w-9 shrink-0 items-center justify-center rounded-card border border-card-edge bg-card text-ink shadow-card" do %>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M15 6l-6 6 6 6"/>
+      </svg>
+    <% end %>
+  </div>
+
+  <%# Eyebrow: "12M AWAY · LEFT 4H AGO" in accent red, with concentric-circles "near" icon. %>
+  <div class="mt-7 flex items-center gap-2 font-mono text-[10px] uppercase tracking-eyebrow text-accent">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+      <circle cx="12" cy="12" r="2.5" fill="currentColor"/>
+      <circle cx="12" cy="12" r="6" stroke-width="1.4" opacity="0.55"/>
+      <circle cx="12" cy="12" r="9.5" stroke-width="1.2" opacity="0.25"/>
     </svg>
-    <%= t("detail.back") %>
-  <% end %>
+    <span>
+      <% if @note.distance_m %><%= t("detail.eyebrow.distance", meters: @note.distance_m) %> · <% end %><%= t("detail.eyebrow.left_ago", time: time_ago_in_words(@note.created_at)) %>
+    </span>
+  </div>
 
-  <%# Note card %>
-  <article class="relative rounded-sheet border border-card-edge bg-card px-6 py-7 shadow-[0_30px_60px_-30px_rgba(0,0,0,0.35)]">
-    <%# Corner crease %>
-    <div class="absolute right-0 top-0 h-5 w-5 rounded-tr-sheet bg-gradient-to-bl from-bg-deep from-50% to-transparent to-50% opacity-60"></div>
+  <%# Note card with highlighter mark + dashed footer carrying the language tag. %>
+  <article class="relative mt-4 rounded-hero border border-card-edge bg-card px-6 py-7 shadow-hero">
+    <%# Yellow highlighter swipe along the top, slightly rotated. %>
+    <span class="absolute -top-2 left-7 h-[18px] w-14 -rotate-3 rounded-sm bg-accent-soft opacity-70" aria-hidden="true"></span>
 
-    <p class="font-mono text-[10px] uppercase tracking-eyebrow text-ink-soft">
-      <%= @note.language.upcase %>
-    </p>
-    <p class="mt-3 whitespace-pre-line font-serif text-[17px] leading-7 text-ink">
+    <p class="whitespace-pre-line font-serif text-[22px] leading-[30px] text-ink">
       <%= @note.content %>
     </p>
+
+    <div class="mt-5 flex items-center justify-between border-t border-dashed border-card-edge pt-4">
+      <span aria-hidden="true"></span>
+      <span class="rounded-sm bg-bg-deep px-2 py-0.5 font-mono text-[10px] uppercase tracking-eyebrow text-ink-soft">
+        <%= @note.language.upcase %>
+      </span>
+    </div>
   </article>
 
   <%# Lifecycle bars %>
-  <div class="mt-7 flex flex-col gap-4">
+  <div class="mt-7 flex flex-col gap-3.5">
     <%# Fades in %>
     <div>
-      <div class="mb-1.5 flex items-baseline justify-between font-mono text-[10px] uppercase tracking-eyebrow text-ink-soft">
-        <span><%= t("detail.lifecycle.fades_in") %></span>
-        <span class="font-serif text-sm normal-case tracking-normal text-ink">
+      <div class="mb-1.5 flex items-center justify-between">
+        <span class="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-eyebrow text-ink-soft">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 7v5l3 2"/>
+          </svg>
+          <%= t("detail.lifecycle.fades_in") %>
+        </span>
+        <span class="font-serif text-sm font-semibold text-ink">
           <% if @note.time_left_seconds.nil? %>
             <%= t("detail.lifecycle.permanent") %>
           <% else %>
@@ -38,10 +63,10 @@
         </span>
       </div>
       <% if @note.time_left_seconds && @note.expires_at %>
-        <%# Bucket against the original lifetime ceiling (here capped at
-            1 day for a stable visual scale; longer notes start near full). %>
+        <%# Bucket against the original lifetime ceiling (capped at 1 day for a
+            stable visual scale; longer notes start near full). %>
         <% pct = (@note.time_left_seconds.to_f / 1.day.to_i * 100).clamp(0, 100) %>
-        <div class="h-1 w-full rounded-full bg-bg-deep">
+        <div class="h-1 w-full overflow-hidden rounded-full bg-bg-deep">
           <div class="h-full rounded-full bg-accent <%= progress_width_class(pct) %>"></div>
         </div>
       <% end %>
@@ -49,9 +74,15 @@
 
     <%# Reads left %>
     <div>
-      <div class="mb-1.5 flex items-baseline justify-between font-mono text-[10px] uppercase tracking-eyebrow text-ink-soft">
-        <span><%= t("detail.lifecycle.reads_left") %></span>
-        <span class="font-serif text-sm normal-case tracking-normal text-ink">
+      <div class="mb-1.5 flex items-center justify-between">
+        <span class="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-eyebrow text-ink-soft">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/>
+            <circle cx="12" cy="12" r="2.5"/>
+          </svg>
+          <%= t("detail.lifecycle.reads_left") %>
+        </span>
+        <span class="font-serif text-sm font-semibold text-ink">
           <% if @note.views_remaining.nil? %>
             <%= t("detail.lifecycle.unlimited") %>
           <% else %>
@@ -61,24 +92,28 @@
       </div>
       <% if @note.views_remaining && @note.max_views %>
         <% pct = ((@note.views_remaining.to_f / @note.max_views) * 100).clamp(0, 100) %>
-        <div class="h-1 w-full rounded-full bg-bg-deep">
-          <div class="h-full rounded-full bg-accent" style="width: <%= pct %>%"></div>
+        <div class="h-1 w-full overflow-hidden rounded-full bg-bg-deep">
+          <div class="h-full rounded-full bg-accent <%= progress_width_class(pct) %>"></div>
         </div>
       <% end %>
     </div>
   </div>
 
-  <div class="flex-1"></div>
-
-  <%# Whisper back — disabled with SOON %>
-  <button type="button" disabled
-          class="relative mt-8 flex cursor-not-allowed items-center justify-center gap-2 rounded-button border border-card-edge bg-card px-4 py-3 font-sans text-sm font-medium text-ink opacity-55"
-          title="<%= t('nav.soon') %>">
-    <%= t("detail.whisper_back") %>
-    <span class="absolute right-3.5 rounded-sm bg-bg-deep px-1.5 py-0.5 font-mono text-[9px] font-semibold tracking-eyebrow text-ink-soft">
-      <%= t("nav.soon") %>
-    </span>
-  </button>
-
-  <%= render "shared/tab_bar", active: :map %>
+  <%# Action row: whisper back (primary, full-width) + report (secondary, auto-width).
+      Both disabled until phase 5 wires replies and moderation. %>
+  <div class="mt-6 flex gap-2">
+    <button type="button" disabled
+            class="flex flex-1 cursor-not-allowed items-center justify-center gap-1.5 rounded-button border border-card-edge bg-card px-4 py-3 font-sans text-sm font-medium text-ink opacity-55"
+            title="<%= t('nav.soon') %>">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+        <path d="M2 12c2 0 2-3 4-3s2 3 4 3 2-3 4-3 2 3 4 3 2-3 4-3"/>
+      </svg>
+      <%= t("detail.whisper_back") %>
+    </button>
+    <button type="button" disabled
+            class="cursor-not-allowed rounded-button border border-card-edge bg-card px-4 py-3 font-sans text-sm font-medium text-ink-soft opacity-55"
+            title="<%= t('nav.soon') %>">
+      <%= t("detail.report") %>
+    </button>
+  </div>
 </div>

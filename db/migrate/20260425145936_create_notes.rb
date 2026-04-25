@@ -11,7 +11,7 @@ class CreateNotes < ActiveRecord::Migration[7.2]
       t.integer :visibility, default: 0, null: false
       t.string :language
 
-      t.index [:latitude, :longitude]
+      t.index [ :latitude, :longitude ]
       t.index :longitude
       t.index :language
 

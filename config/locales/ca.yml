@@ -141,6 +141,9 @@ ca:
           week: 1 setmana
       max_views:
         label: Lectures permeses
+        readout:
+          one: "1 lectura"
+          other: "%{count} lectures"
         options:
           one: 1 lectura
           few: 5 lectures
@@ -152,16 +155,23 @@ ca:
         friends: Només amics
         whisper: Una sola persona
     submit: Deixa-la aquí
-    success_stub: "Xiuxiueig deixat a l'aire. (El guardarem de debò quan arribi el model.)"
+    success: "Xiuxiueig deixat a l'aire."
     cancel: Cancel·la
+    back: Torna al mapa
+    location:
+      placeholder: "Ancorat al teu lloc"
   detail:
     back: Torna al mapa
+    eyebrow:
+      distance: "a %{meters}m"
+      left_ago: "deixat fa %{time}"
     lifecycle:
       fades_in: S'esvaeix en
       reads_left: Lectures restants
       permanent: Sense límit de temps
       unlimited: Lectures il·limitades
     whisper_back: Respon el xiuxiueig
+    report: Denuncia
     not_found:
       title: Aquest xiuxiueig s'ha esvaït.
       body: Potser ha exhaurit les lectures o queda fora del radi. Prova el mapa.

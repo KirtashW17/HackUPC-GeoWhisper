@@ -141,6 +141,9 @@ es:
           week: 1 semana
       max_views:
         label: Lecturas permitidas
+        readout:
+          one: "1 lectura"
+          other: "%{count} lecturas"
         options:
           one: 1 lectura
           few: 5 lecturas
@@ -152,16 +155,23 @@ es:
         friends: Solo amigos
         whisper: Una sola persona
     submit: Déjala aquí
-    success_stub: "Susurro dejado en el aire. (Lo guardaremos de verdad cuando llegue el modelo.)"
+    success: "Susurro dejado en el aire."
     cancel: Cancelar
+    back: Volver al mapa
+    location:
+      placeholder: "Anclado a tu ubicación"
   detail:
     back: Volver al mapa
+    eyebrow:
+      distance: "a %{meters}m"
+      left_ago: "dejado hace %{time}"
     lifecycle:
       fades_in: Se desvanece en
       reads_left: Lecturas restantes
       permanent: Sin límite de tiempo
       unlimited: Lecturas ilimitadas
     whisper_back: Responder al susurro
+    report: Reportar
     not_found:
       title: Este susurro se ha desvanecido.
       body: Puede que se haya quedado sin lecturas o que esté fuera del radio. Prueba el mapa.

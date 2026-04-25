@@ -95,8 +95,8 @@ export default class extends Controller {
       icon: L.divIcon({
         className: "gw-pin-here",
         html: '<span class="gw-pin-here__pulse"></span><span class="gw-pin-here__dot"></span>',
-        iconSize: [22, 22],
-        iconAnchor: [11, 11]
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
       }),
       keyboard: false,
       zIndexOffset: 1000
@@ -130,12 +130,12 @@ export default class extends Controller {
       L.marker([note.latitude, note.longitude], {
         icon: L.divIcon({
           className: "gw-pin",
-          html: '<span class="gw-pin__dot"></span>',
-          iconSize: [16, 16],
-          iconAnchor: [8, 8]
+          html: '<span class="gw-pin__pulse"></span><span class="gw-pin__dot"></span>',
+          iconSize: [32, 32],
+          iconAnchor: [16, 16]
         })
       }).addTo(this.leaflet).on("click", () => {
-        window.location.href = `/notes/${note.id}`
+        window.location.href = this.noteHref(note)
       })
     ))
   }
@@ -184,7 +184,7 @@ export default class extends Controller {
     ].filter(Boolean).join('<span class="inline-block h-[2px] w-[2px] rounded-full bg-ink-faint"></span>')
 
     return `
-      <a href="/notes/${note.id}"
+      <a href="${this.noteHref(note)}"
          class="relative block rounded-card border border-card-edge bg-card px-4 py-3.5 shadow-[0_12px_30px_-18px_rgba(0,0,0,0.25)]">
         <div class="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-eyebrow text-accent">
           ${note.distance_m}m ${closest}
@@ -219,6 +219,13 @@ export default class extends Controller {
       return `<span>${this.escape(this.i18nValue.unlimited_views)}</span>`
     }
     return `<span>${remaining} reads</span>`
+  }
+
+  // Build the link to a note's detail page, forwarding the viewer's
+  // coordinates so the server can compute the "Xm away" eyebrow.
+  noteHref(note) {
+    if (this.userLat == null || this.userLng == null) return `/notes/${note.id}`
+    return `/notes/${note.id}?lat=${this.userLat}&lng=${this.userLng}`
   }
 
   formatRadius(meters) {

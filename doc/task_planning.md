@@ -86,35 +86,39 @@
 
 ---
 
-## Fase 2 — Captura de geolocalización + creación de notas
+## Fase 2 — Captura de geolocalización + creación de notas *(completada)*
 
-- [ ] Stimulus controller que rellena lat/lng en un form de creación
-- [ ] `NotesController#new` + `#create` con form mobile-first
-- [ ] UX: pedir permiso de ubicación con feedback claro si se deniega (i18n)
-- [ ] Inputs flexibles para TTL (numérico + unidad) y `max_views` con caps de UI (≤ 30 días, ≤ 1000)
-- [ ] Auto-asignar `Note#language` desde `I18n.locale` actual; permitir override
-- [ ] Tests de controlador (creación válida, validaciones, rango de TTL/views, asignación de idioma)
+> Detalle en [`plans/phase_2_map_and_compose.md`](plans/phase_2_map_and_compose.md) y [`plans/phase_2_note_integration.md`](plans/phase_2_note_integration.md).
 
----
-
-## Fase 3 — Descubrir notas cercanas
-
-- [ ] `NotesController#nearby` con params `lat`, `lng`, `radius`
-- [ ] Query: bounding box + Haversine, scope `active`, ordenar por distancia
-- [ ] Hard cap del radio: ≤ 5 km en MVP (param que el cliente no puede superar)
-- [ ] Vista listado mobile-first (cards con distancia, tiempo restante, vistas restantes, idioma)
-- [ ] Tests del query: nota expirada, fuera de radio, radio sobre el cap
+- [X] `geolocation_controller.js` rellena lat/lng en el form (autofill on connect)
+- [X] `NotesController#new` + `#create` con form mobile-first (`Notes::ComposeForm` + `Note.create!`)
+- [X] UX: prompt de ubicación; denied state con Try Again en `/map`
+- [X] Inputs flexibles para TTL (15min/1h/1día/1semana) y `max_views` (1/5/25/100) con caps (≤ 30 días, ≤ 1000) en form-side
+- [X] Auto-asignar `language` desde `I18n.locale`; chip selectable
+- [X] Tests del controller (`NotesControllerTest` — auth/onboarded gate, JSON contract, create válido/inválido)
 
 ---
 
-## Fase 4 — Mapa interactivo
+## Fase 3 — Descubrir notas cercanas *(completada)*
 
-- [ ] Importar Leaflet vía importmap o como asset
-- [ ] Stimulus `map_controller.js` que centra en la ubicación del usuario
-- [ ] Renderizar markers de notas activas con popup de preview
-- [ ] Botón "ver" que abre el detalle (consume una visualización)
-- [ ] Marker especial para "tú estás aquí"
-- [ ] **Denied state** en `/map` cuando se deniega geolocalización *(ver `next-steps.md`)*
+- [X] `NotesController#nearby` con params `lat`, `lng`, `radius`
+- [X] `Note.nearby`: bounding box + Haversine en Ruby, scope `active`, ordenar por distancia
+- [X] Hard cap del radio: ≤ 5 km en MVP (`Note::MAX_RADIUS_M`, server-side)
+- [X] Vista listado dentro del `/map` (toggle Map ↔ List, mismas tarjetas WhisperCard)
+- [X] Tests del query (`NoteTest`: nota expirada, fuera de radio, radio sobre el cap, permanente, unlimited views)
+
+---
+
+## Fase 4 — Mapa interactivo *(completada)*
+
+- [X] Leaflet 1.9.4 self-hosted en `vendor/javascript/leaflet.js` + CSS
+- [X] Stimulus `map_controller.js` con state machine (`loading→ready/empty/denied`) y geolocation
+- [X] Markers de notas activas (divIcon terracota); peek card de la más cercana
+- [X] Click en marker abre `/notes/:id` (incrementa `view!`)
+- [X] Marker "tú estás aquí" con `divIcon` + animación pulse
+- [X] **Denied state** inline en `/map` con instrucciones + Try Again
+- [X] Skin Soft & Paper en tiles (CSS filter) + popups + atribución
+- [ ] Radio configurable por el usuario *(en `future.md` como nice-to-have)*
 
 ---
 
