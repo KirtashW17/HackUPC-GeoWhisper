@@ -112,7 +112,7 @@ class NoteTest < ActiveSupport::TestCase
 
     note.view!
     assert_equal 2, note.views_count
-    assert note.private_note?
+    assert note.archived?
   end
 
   test "view! does not increment views_count for private notes" do

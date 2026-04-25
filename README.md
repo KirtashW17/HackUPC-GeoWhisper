@@ -164,17 +164,43 @@ El proyecto usa **MiniTest**, el framework de tests por defecto de Rails.
 # Todos los tests
 bin/rails test
 
-# Solo tests de modelos
+# Por carpeta
 bin/rails test test/models/
-
-# Solo tests de controladores
 bin/rails test test/controllers/
+bin/rails test test/integration/
 
-# Un test concreto
+# Un fichero concreto
 bin/rails test test/models/note_test.rb
+
+# Un único test por número de línea (útil para iterar rápido)
+bin/rails test test/models/note_test.rb:42
+
+# Filtrar por nombre (regex sobre el nombre del test)
+bin/rails test test/models/note_test.rb -n /view/
 ```
 
+> Si instalaste las gems con `bundle install --path vendor/bundle`, recuerda prefijar los comandos con `bundle exec` (p. ej. `bundle exec bin/rails test`).
+
+La suite corre **en paralelo** (un worker por CPU, configurado en `test/test_helper.rb`) y carga automáticamente todas las fixtures de `test/fixtures/*.yml`.
+
 > **Sin tests de sistema.** El proyecto **no** usa tests de sistema. Toda la cobertura va por tests de modelo, controlador e integración (`ActionDispatch::IntegrationTest`).
+
+### Datos de prueba: preferir fixtures
+
+Cuando un test necesita un registro persistido, lo idiomático es usar una **fixture** en `test/fixtures/*.yml` antes que construir el registro inline con `Model.create!`. Las fixtures se cargan una sola vez por ejecución y mantienen los tests centrados en el comportamiento que prueban.
+
+```ruby
+class NotesControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @user = users(:alice)   # fixture de test/fixtures/users.yml
+    sign_in_as(@user)       # helper definido en test/test_helper.rb
+  end
+end
+```
+
+La contraseña compartida por las fixtures de usuario está expuesta como `ActiveSupport::TestCase::FIXTURE_PASSWORD` para tests que necesiten autenticarse con un email distinto al de fixture.
+
+La construcción inline (`User.new(...)`, `Note.create!(...)`) sigue siendo apropiada cuando el test ejerce específicamente el camino de creación/validación, o cuando necesita un atributo que ninguna fixture debería llevar; en ese caso, mantén los identificadores (emails, etc.) distintos a los de las fixtures para no chocar con la validación de unicidad.
 
 ---
 
