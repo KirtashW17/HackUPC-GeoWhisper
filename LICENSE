@@ -1,0 +1,55 @@
+GeoWhisper — Proprietary Source-Available License
+
+Copyright (c) 2026 Thomas Scalise. All rights reserved.
+
+This software and its source code (the "Software") are made publicly readable
+for the sole purpose of personal study and reference. No other rights are
+granted.
+
+1. Permitted use.
+   You may view and read the Software's source code through the hosting
+   platform on which it is published (e.g., GitHub) for the purpose of
+   personal, non-commercial study.
+
+2. Prohibited use.
+   Without the prior, explicit, written permission of the copyright holder,
+   you may NOT:
+     (a) copy, download, clone, mirror, archive, or otherwise reproduce the
+         Software or any portion of it, in source or compiled form, except
+         for the transient copies strictly necessary to view the code in a
+         web browser;
+     (b) modify, adapt, translate, or create derivative works based on the
+         Software;
+     (c) redistribute, publish, sublicense, sell, rent, lease, lend, host,
+         or otherwise make the Software available to any third party, in
+         original or modified form;
+     (d) use the Software, in whole or in part, in any product, service,
+         deployment, or work — whether commercial or non-commercial,
+         private or public, internal or external;
+     (e) remove or alter any copyright, trademark, or other proprietary
+         notices contained in the Software.
+
+3. No license to trademarks.
+   This document does not grant any rights to use the names, logos, or
+   trademarks of the copyright holder or of the GeoWhisper project.
+
+4. No contribution license.
+   Submitting a contribution (issue, pull request, patch, or any other
+   material) is not permitted without prior written agreement with the
+   copyright holder establishing the terms under which such contribution
+   would be accepted.
+
+5. Termination.
+   Any breach of this license terminates the rights granted under Section 1
+   automatically, without notice.
+
+6. No warranty.
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+   IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES,
+   OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE,
+   ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+   OTHER DEALINGS IN THE SOFTWARE.
+
+For licensing inquiries, contact: thomas.scalise@team.blue
