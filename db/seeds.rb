@@ -75,7 +75,48 @@ NOTES = [
   { content: "Hackathon brunch a les 10. (Ja ha passat.)",
     latitude: 41.3893, longitude: 2.1135,
     author_email: "anna@example.com", language: "ca",
-    expires_at: 1.hour.ago, max_views: 50 }
+    expires_at: 1.hour.ago, max_views: 50 },
+
+  # ── More Campus Nord whispers ────────────────────────────────────
+  # Two notes stacked at the canteen entrance (same coords) so the map
+  # cluster/stack rendering has something to chew on.
+  # Alice's already-expired note (pairs with her active ones below to
+  # exercise the active-scope filter on a single author).
+  { content: "The queue is huge today, go around the back.",
+    latitude: 41.3890, longitude: 2.1138,
+    author_email: "alice@example.com", language: "en",
+    expires_at: 6.hours.ago, max_views: nil },
+
+  { content: "The queue is on the left. The other one is for reservations.",
+    latitude: 41.3890, longitude: 2.1138,
+    author_email: "alice@example.com", language: "en",
+    expires_at: 2.days.from_now, max_views: 80 },
+
+  # ~80 m away — treasure hunt with a tight read budget.
+  { content: "Treasure: 14 paces towards the fountain. Look low.",
+    latitude: 41.3897, longitude: 2.1128,
+    author_email: "alice@example.com", language: "en",
+    expires_at: 14.days.from_now, max_views: 5 },
+
+  # Single-read poetic note, no time limit — vanishes on the first
+  # stranger who reads it.
+  { content: "If you're reading this, the bench faces east. Wait for the 7am light.",
+    latitude: 41.3888, longitude: 2.1140,
+    author_email: "alice@example.com", language: "en",
+    expires_at: nil, max_views: 1 },
+
+  # Slightly more distant — long-lived, generous read cap.
+  { content: "I've been sitting here thinking about you, I hope this makes you smile.",
+    latitude: 41.3886, longitude: 2.1145,
+    author_email: "alice@example.com", language: "en",
+    expires_at: 30.days.from_now, max_views: 200 },
+
+  # Philosophical reflection in Catalan — on transience, which is kind
+  # of the whole point of this app.
+  { content: "Tot lloc és nou per a qui s'hi atura. Aquesta pedra ha vist més primaveres que tu i jo, i seguirà aquí quan ningú ens recordi.",
+    latitude: 41.3894, longitude: 2.1131,
+    author_email: "anna@example.com", language: "ca",
+    expires_at: 10.days.from_now, max_views: 40 }
 ].freeze
 
 NOTES.each do |attrs|
