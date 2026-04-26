@@ -9,9 +9,9 @@ Este proyecto se desarrolla durante el **HackUPC** como prototipo de red social 
 GeoWhisper permite:
 - **Crear notas** ancladas a la ubicación actual del usuario (lat/lng del navegador)
 - **Descubrir notas cercanas** dentro de un radio configurable
+- **Vista de mapa interactivo** (Leaflet + OpenStreetMap) con las notas cercanas y clustering
 - **Expiración automática** por tiempo (`expires_at`) y/o por número de visualizaciones (`max_views`)
 - *(futuro)* Visibilidad pública, solo para amigos o destinatario único
-- *(futuro)* Vista de mapa interactivo con las notas cercanas
 
 ---
 
