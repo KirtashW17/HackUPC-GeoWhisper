@@ -24,7 +24,6 @@ class Note < ApplicationRecord
   validates :longitude, presence: true, numericality: { greater_than_or_equal_to: -180, less_than_or_equal_to: 180 }
   validates :max_views, numericality: { only_integer: true, greater_than: 0 }, allow_nil: true
   validates :content, length: { in: 1..500 }, presence: true
-  validates :expires_at, numericality: { greater_than_or_equal_to: ->(note) { note.created_at || DateTime.current } }, allow_nil: true
 
   scope :active, -> {
     where(archived: false)

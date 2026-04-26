@@ -31,6 +31,15 @@ class MapControllerTest < ActionDispatch::IntegrationTest
     assert_includes body, I18n.t("map.cluster.close")
   end
 
+  test "recenter button only triggers the JS recenter action, not a refetch" do
+    get map_path
+    assert_response :success
+
+    assert_select "button[title=?][data-action=?]",
+                  I18n.t("map.header.recenter"),
+                  "click->map#recenter"
+  end
+
   test "redirects non-onboarded users to /welcome" do
     sign_in_as(users(:bob))
     get map_path

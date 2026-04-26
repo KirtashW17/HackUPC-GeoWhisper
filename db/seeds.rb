@@ -44,7 +44,7 @@ NOTES = [
   # Campus Nord (UPC, Barcelona) — the demo venue.
   { content: "The vending machine on B6 still takes coins. The one on A4 doesn't.",
     latitude: 41.3892, longitude: 2.1133,
-    author_email: "anna@example.com", language: "ca",
+    author_email: "anna@example.com", language: "en",
     expires_at: 7.days.from_now, max_views: nil },
 
   { content: "If you've made it this far into the term, you're going to be alright.",

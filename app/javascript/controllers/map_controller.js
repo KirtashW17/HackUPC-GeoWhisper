@@ -51,6 +51,30 @@ export default class extends Controller {
     this.requestLocation()
   }
 
+  // Re-center the map on the user's current position without re-fetching
+  // notes from the server. Refreshes the geolocation reading so the pin
+  // tracks the user if they have moved, but skips the nearby query — the
+  // header button is for "snap back to me", not for refreshing data.
+  recenter(event) {
+    event?.preventDefault()
+    if (!this.leaflet) {
+      this.requestLocation()
+      return
+    }
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        this.userLat = coords.latitude
+        this.userLng = coords.longitude
+        this.leaflet.setView([this.userLat, this.userLng], 16)
+        this.youAreHere?.setLatLng([this.userLat, this.userLng])
+      },
+      () => {
+        this.leaflet.setView([this.userLat, this.userLng], 16)
+      },
+      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 0 }
+    )
+  }
+
   showMap(event) {
     event?.preventDefault()
     this.view = "map"
