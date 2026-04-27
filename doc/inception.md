@@ -1,5 +1,14 @@
 # GeoWhisper — Inception
 
+## Slogan candidates
+
+Shortlist for the README hero / pitch / landing — none picked yet, capture
+here so the options don't drift away.
+
+- *Las paredes tienen algo que contarte.* / *The walls have something to tell you.*
+- *Notas para este sitio, no para siempre.* / *Notes for here, not forever.*
+- *Deja un susurro. Que se desvanezca.* / *Leave a whisper. Let it vanish.*
+
 ## Concept
 
 **GeoWhisper** (a.k.a. *Ghost Notes*) is a location-aware app for leaving

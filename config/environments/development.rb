@@ -16,6 +16,8 @@ Rails.application.configure do
   config.hosts << /.*\.lhr\.life\z/
   config.hosts << /.*\.serveo\.net\z/
   config.hosts << /.*\.trycloudflare\.com\z/
+  config.hosts << "10.238.196.42"
+  config.hosts << "geowhisper.local"
 
   # Do not eager load code on boot.
   config.eager_load = false
