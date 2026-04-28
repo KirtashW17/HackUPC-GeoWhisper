@@ -1,239 +1,239 @@
-# GeoWhisper — Ghost Notes geolocalizadas y efímeras
+# GeoWhisper — Geolocated, ephemeral Ghost Notes
 
-**GeoWhisper** es una aplicación web para dejar notas digitales ancladas a un lugar físico. Las notas solo se hacen visibles cuando otros usuarios pasan cerca del punto donde se dejaron, y se autodestruyen al cumplir cierto tiempo o al ser leídas un número máximo de veces.
+**GeoWhisper** is a Progressive Web Application (PWA) — installable on mobile devices and designed mobile-first — for leaving digital notes anchored to a physical place. Notes only become visible when other users walk near the spot where they were dropped, and they self-destruct after a certain time or after being read a maximum number of times.
 
-## Contexto
+## Context
 
-Este proyecto se desarrolla durante el **HackUPC** como prototipo de red social basada en geolocalización y mensajes efímeros. La idea completa, mecánicas y stretch goals están detallados a [`doc/inception.md`](doc/inception.md).
+This project is being developed during **HackUPC** as a prototype for a social network based on geolocation and ephemeral messages. The full idea, mechanics and stretch goals are detailed in [`doc/inception.md`](doc/inception.md).
 
-GeoWhisper permite:
-- **Crear notas** ancladas a la ubicación actual del usuario (lat/lng del navegador)
-- **Descubrir notas cercanas** dentro de un radio configurable
-- **Vista de mapa interactivo** (Leaflet + OpenStreetMap) con las notas cercanas y clustering
-- **Expiración automática** por tiempo (`expires_at`) y/o por número de visualizaciones (`max_views`)
-- *(futuro)* Visibilidad pública, solo para amigos o destinatario único
+GeoWhisper lets you:
+- **Create notes** anchored to the user's current location (browser lat/lng)
+- **Discover nearby notes** within a configurable radius
+- **Interactive map view** (Leaflet + OpenStreetMap) with nearby notes and clustering
+- **Automatic expiration** by time (`expires_at`) and/or by view count (`max_views`)
+- *(future)* Public visibility, friends-only, or single-recipient
 
 ---
 
-## Requisitos previos
+## Prerequisites
 
-- **Ruby 3.1.2** — se recomienda gestionarlo con [rbenv](https://github.com/rbenv/rbenv)
-- **Bundler** — gestor de dependencias de Ruby
-- **SQLite3** — base de datos usada en desarrollo y test
+- **Ruby 3.1.2** — managing it with [rbenv](https://github.com/rbenv/rbenv) is recommended
+- **Bundler** — Ruby dependency manager
+- **SQLite3** — database used in development and test
 
-### Instalar Ruby con rbenv
+### Installing Ruby with rbenv
 
 ```bash
-# Instalar rbenv (si no lo tienes)
+# Install rbenv (if you don't have it)
 git clone https://github.com/rbenv/rbenv.git ~/.rbenv
 echo 'eval "$(~/.rbenv/bin/rbenv init - bash)"' >> ~/.bashrc
 source ~/.bashrc
 
-# Instalar ruby-build (plugin para instalar versiones de Ruby)
+# Install ruby-build (plugin to install Ruby versions)
 git clone https://github.com/rbenv/ruby-build.git "$(rbenv root)"/plugins/ruby-build
 
-# Instalar la versión correcta (definida a .ruby-version) y dependencias del sistema
+# Install the correct version (defined in .ruby-version) and system dependencies
 sudo apt update
 sudo apt install build-essential ruby-dev libyaml-dev ruby-bundler libsqlite3-dev pkg-config zlib1g-dev
 rbenv install 3.1.2
 ```
 
-Una vez dentro del directorio del proyecto, `rbenv` seleccionará automáticamente la versión `3.1.2` gracias al fichero `.ruby-version`.
+Once inside the project directory, `rbenv` will automatically pick version `3.1.2` thanks to the `.ruby-version` file.
 
 ---
 
-## Preparar el entorno de desarrollo
+## Setting up the development environment
 
 ```bash
-# Clonar el repositorio
+# Clone the repository
 git clone https://github.com/<org>/GeoWhisper.git
 cd GeoWhisper
 
-# Instalar las dependencias
-# Opción A — instalación estándar (recomendada si tienes permisos)
+# Install dependencies
+# Option A — standard install (recommended if you have permissions)
 bundle config set --local path ./vendor/bundle
 bundle install
 
-# Opción B — instalación en un directorio local (útil en entornos compartidos)
+# Option B — install in a local directory (useful in shared environments)
 bundle install --path vendor/bundle
 ```
 
-> Si usas la opción B, recuerda que todos los comandos de Rails deben ejecutarse con el prefijo `bundle exec`.
+> If you use option B, remember that all Rails commands must be prefixed with `bundle exec`.
 
 ```bash
-# Crear e inicializar la base de datos (SQLite)
+# Create and initialize the database (SQLite)
 bin/rails db:create db:migrate
 
-# (Opcional) Cargar datos de prueba
+# (Optional) Load seed data
 bin/rails db:seed
 ```
 
 ---
 
-## Ejecutar la aplicación
+## Running the application
 
-En desarrollo lo recomendado es usar `bin/dev`, que arranca el servidor Rails y el watcher de Tailwind en paralelo (definidos en `Procfile.dev`):
+In development the recommended way is `bin/dev`, which boots the Rails server and the Tailwind watcher in parallel (defined in `Procfile.dev`):
 
 ```bash
 bin/dev
 ```
 
-Si solo necesitas el servidor sin el watcher de CSS:
+If you only need the server without the CSS watcher:
 
 ```bash
 bin/rails server
-# o si has instalado las gems localmente:
+# or, if you installed gems locally:
 bundle exec rails server
 ```
 
-La aplicación estará disponible en [http://localhost:3000](http://localhost:3000).
+The application will be available at [http://localhost:3000](http://localhost:3000).
 
 ### Tailwind CSS
 
-Tailwind se gestiona con el gem **`tailwindcss-rails`** (sin Node ni npm). El CSS compilado vive en `app/assets/builds/tailwind.css`, que es un **artefacto de build** y **no se chequea en el repo** — cada máquina dev lo genera localmente y el deploy lo regenera durante `assets:precompile`.
+Tailwind is managed via the **`tailwindcss-rails`** gem (no Node, no npm). The compiled CSS lives in `app/assets/builds/tailwind.css`, which is a **build artifact** and is **not checked into the repo** — every dev machine generates it locally and the deploy regenerates it during `assets:precompile`.
 
-Tras clonar, si ves un error tipo "tailwind.css no existe", genera el build:
+After cloning, if you see an error like "tailwind.css does not exist", generate the build:
 
 ```bash
-# Build único
+# One-shot build
 bin/rails tailwindcss:build
 
-# Watch en paralelo (recompila al editar clases)
+# Watch in parallel (recompiles when classes change)
 bin/rails tailwindcss:watch
 ```
 
-`bin/dev` ya lanza el watcher automáticamente, así que en el flujo normal no hace falta invocarlos a mano.
+`bin/dev` already launches the watcher automatically, so in the normal flow you don't need to invoke them by hand.
 
-> **Nota sobre geolocalización:** la API de Geolocation del navegador requiere un *secure context*. En `localhost` funciona; al desplegar a otro host necesitarás HTTPS para que el navegador entregue las coordenadas.
+> **Note on geolocation:** the browser's Geolocation API requires a *secure context*. It works on `localhost`; when deploying to another host you'll need HTTPS for the browser to deliver coordinates.
 
 ---
 
-## Probar la app desde un dispositivo móvil (HTTPS vía túnel)
+## Testing the app from a mobile device (HTTPS via tunnel)
 
-La Geolocation API solo se activa en *secure contexts* (HTTPS). Tu navegador hace una excepción para `localhost` / `127.0.0.1`, **pero no para IPs de red local** (tipo `192.168.x.x`). Si abres el dev server desde el móvil con la IP de tu LAN, el prompt de ubicación nunca aparece y la app se queda en blanco. Para la demo y cualquier prueba móvil necesitamos un **túnel HTTPS**.
+The Geolocation API only activates in *secure contexts* (HTTPS). Your browser makes an exception for `localhost` / `127.0.0.1`, **but not for local network IPs** (such as `192.168.x.x`). If you open the dev server from your phone using your LAN IP, the location prompt never appears and the app stays blank. For the demo and any mobile testing we need an **HTTPS tunnel**.
 
-### Flujo recomendado: `localhost.run` (sin cuenta)
+### Recommended flow: `localhost.run` (no account)
 
-Solo necesitas un cliente SSH (preinstalado en macOS/Linux; en Windows usa el de Git Bash o WSL).
+You only need an SSH client (preinstalled on macOS/Linux; on Windows use the one from Git Bash or WSL).
 
 1. **Terminal 1 — dev server:**
    ```bash
    bin/dev
    ```
 
-2. **Terminal 2 — túnel:**
+2. **Terminal 2 — tunnel:**
    ```bash
    ssh -R 80:localhost:3000 nokey@localhost.run
    ```
 
-   La primera vez te pedirá aceptar el host fingerprint (`yes`). Después imprime algo como:
+   The first time, it will ask you to accept the host fingerprint (`yes`). Afterwards it prints something like:
 
    ```
    2c4e7f9a8d.lhr.life tunneled with tls termination, https://2c4e7f9a8d.lhr.life
    ```
 
-3. Abre **esa URL `https://...lhr.life`** en el móvil. El navegador pedirá permiso de ubicación al entrar a `/map`.
+3. Open **that `https://...lhr.life` URL** on your phone. The browser will ask for location permission when entering `/map`.
 
-**Notas:**
-- La URL **cambia** cada vez que matas y relanzas el túnel. Si la URL queda en una pestaña vieja del móvil tras un reinicio, hay que cargar la URL nueva.
-- La sesión SSH puede colgarse tras un rato de inactividad — `Ctrl+C` y relanzar.
-- `*.lhr.life`, `*.ngrok-free.app`, `*.serveo.net` y `*.trycloudflare.com` ya están autorizados en `config/environments/development.rb` (`config.hosts`).
+**Notes:**
+- The URL **changes** every time you kill and relaunch the tunnel. If the URL stays in an old phone tab after a restart, you have to load the new URL.
+- The SSH session can hang after a while of inactivity — `Ctrl+C` and relaunch.
+- `*.lhr.life`, `*.ngrok-free.app`, `*.serveo.net` and `*.trycloudflare.com` are already authorized in `config/environments/development.rb` (`config.hosts`).
 
-### Alternativa: `ngrok`
+### Alternative: `ngrok`
 
 ```bash
 npx ngrok http 3000
 ```
 
-Pide cuenta gratis la primera vez (`ngrok config add-authtoken …`). Misma idea — devuelve una URL `https://abc-123.ngrok-free.app`. Si demoamos delante de mucha gente y el throughput de `localhost.run` no aguanta, el plan free de ngrok suele ir mejor.
+It asks for a free account the first time (`ngrok config add-authtoken …`). Same idea — it returns a `https://abc-123.ngrok-free.app` URL. If we demo in front of many people and `localhost.run`'s throughput can't keep up, ngrok's free plan usually performs better.
 
-### Cuándo *no* hace falta el túnel
+### When you *don't* need the tunnel
 
-- Si pruebas desde el portátil/desktop apuntando a `http://localhost:3000`, todo funciona sin túnel — el navegador trata `localhost` como secure context.
-- Tests automáticos no llaman a Geolocation (no podemos mockear `navigator.geolocation` sin browser real), así que el túnel no es relevante para la suite.
+- If you test from your laptop/desktop pointing at `http://localhost:3000`, everything works without a tunnel — the browser treats `localhost` as a secure context.
+- Automated tests don't call Geolocation (we can't mock `navigator.geolocation` without a real browser), so the tunnel is not relevant for the suite.
 
 ---
 
-## Ejecutar los tests
+## Running the tests
 
-El proyecto usa **MiniTest**, el framework de tests por defecto de Rails.
+The project uses **MiniTest**, Rails' default testing framework.
 
-> **Metodología TDD obligatoria:** todas las funcionalidades se desarrollan siguiendo *Test-Driven Development* (red → green → refactor). Antes de escribir código de producción debe existir un test que falle, y todas las funcionalidades —modelos, controladores, vistas, jobs y flujos de sistema— deben estar **escrupulosamente testeadas**. No se aceptan PRs con código sin cobertura de tests.
+> **TDD methodology is mandatory:** all features are developed following *Test-Driven Development* (red → green → refactor). Before writing production code there must be a failing test, and every feature — models, controllers, views, jobs and system flows — must be **scrupulously tested**. PRs with uncovered code are not accepted.
 
 ```bash
-# Todos los tests
+# All tests
 bin/rails test
 
-# Por carpeta
+# By directory
 bin/rails test test/models/
 bin/rails test test/controllers/
 bin/rails test test/integration/
 
-# Un fichero concreto
+# A specific file
 bin/rails test test/models/note_test.rb
 
-# Un único test por número de línea (útil para iterar rápido)
+# A single test by line number (useful for tight iteration)
 bin/rails test test/models/note_test.rb:42
 
-# Filtrar por nombre (regex sobre el nombre del test)
+# Filter by name (regex on the test name)
 bin/rails test test/models/note_test.rb -n /view/
 ```
 
-> Si instalaste las gems con `bundle install --path vendor/bundle`, recuerda prefijar los comandos con `bundle exec` (p. ej. `bundle exec bin/rails test`).
+> If you installed gems with `bundle install --path vendor/bundle`, remember to prefix commands with `bundle exec` (e.g. `bundle exec bin/rails test`).
 
-La suite corre **en paralelo** (un worker por CPU, configurado en `test/test_helper.rb`) y carga automáticamente todas las fixtures de `test/fixtures/*.yml`.
+The suite runs **in parallel** (one worker per CPU, configured in `test/test_helper.rb`) and automatically loads every fixture in `test/fixtures/*.yml`.
 
-> **Sin tests de sistema.** El proyecto **no** usa tests de sistema. Toda la cobertura va por tests de modelo, controlador e integración (`ActionDispatch::IntegrationTest`).
+> **No system tests.** The project does **not** use system tests. All coverage goes through model, controller and integration tests (`ActionDispatch::IntegrationTest`).
 
-### Datos de prueba: preferir fixtures
+### Test data: prefer fixtures
 
-Cuando un test necesita un registro persistido, lo idiomático es usar una **fixture** en `test/fixtures/*.yml` antes que construir el registro inline con `Model.create!`. Las fixtures se cargan una sola vez por ejecución y mantienen los tests centrados en el comportamiento que prueban.
+When a test needs a persisted record, the idiomatic approach is to use a **fixture** in `test/fixtures/*.yml` rather than building the record inline with `Model.create!`. Fixtures are loaded once per run and keep tests focused on the behavior under test.
 
 ```ruby
 class NotesControllerTest < ActionDispatch::IntegrationTest
   setup do
-    @user = users(:alice)   # fixture de test/fixtures/users.yml
-    sign_in_as(@user)       # helper definido en test/test_helper.rb
+    @user = users(:alice)   # fixture from test/fixtures/users.yml
+    sign_in_as(@user)       # helper defined in test/test_helper.rb
   end
 end
 ```
 
-La contraseña compartida por las fixtures de usuario está expuesta como `ActiveSupport::TestCase::FIXTURE_PASSWORD` para tests que necesiten autenticarse con un email distinto al de fixture.
+The shared password used by user fixtures is exposed as `ActiveSupport::TestCase::FIXTURE_PASSWORD` for tests that need to authenticate with an email different from the fixture's.
 
-La construcción inline (`User.new(...)`, `Note.create!(...)`) sigue siendo apropiada cuando el test ejerce específicamente el camino de creación/validación, o cuando necesita un atributo que ninguna fixture debería llevar; en ese caso, mantén los identificadores (emails, etc.) distintos a los de las fixtures para no chocar con la validación de unicidad.
+Inline construction (`User.new(...)`, `Note.create!(...)`) is still appropriate when the test specifically exercises the creation/validation path, or when it needs an attribute that no fixture should carry; in that case, keep identifiers (emails, etc.) distinct from those of the fixtures to avoid colliding with uniqueness validation.
 
 ---
 
-## Herramientas de calidad de código
+## Code quality tools
 
-El proyecto exige el uso de las siguientes herramientas. Cualquier cambio debe pasar **RuboCop** sin warnings y **Brakeman** sin alertas nuevas antes de ser fusionado.
+The project requires the use of the following tools. Any change must pass **RuboCop** with no warnings and **Brakeman** with no new alerts before being merged.
 
 ```bash
-# Linting de estilo Ruby/Rails (RuboCop) — obligatorio
+# Ruby/Rails style linting (RuboCop) — mandatory
 bin/rubocop
 
-# Autocorrección de violaciones triviales
+# Autocorrect trivial violations
 bin/rubocop -a
 
-# Análisis estático de seguridad (Brakeman) — obligatorio
+# Static security analysis (Brakeman) — mandatory
 bin/brakeman
 ```
 
 ---
 
-## Documentación de código (YARD)
+## Code documentation (YARD)
 
-Cada función, clase y módulo público debe documentarse con **[YARD](https://yardoc.org/)**. Es **obligatorio**:
+Every public function, class and module must be documented with **[YARD](https://yardoc.org/)**. It is **mandatory**:
 
-- Toda definición pública (métodos, clases, módulos) lleva una docstring con:
-  - Una línea de resumen.
-  - Una etiqueta `@param` por argumento con tipo y descripción.
-  - Una etiqueta `@return` con tipo y descripción.
-  - `@example` cuando la llamada no sea obvia.
-- Métodos `private` pueden omitir la docstring si el nombre y firma son auto-explicativos.
-- Cuando toques código existente sin documentar, **añade YARD** como parte del cambio.
+- Every public definition (methods, classes, modules) carries a docstring with:
+  - A one-line summary.
+  - One `@param` tag per argument, with type and description.
+  - A `@return` tag with type and description.
+  - `@example` when the call site isn't obvious.
+- `private` methods may skip the docstring if the name and signature are self-explanatory.
+- When you touch existing undocumented code, **add YARD** as part of the change.
 
-Ejemplo mínimo:
+Minimal example:
 
 ```ruby
 # Returns the canonical post-login redirect URL for the current user.
@@ -246,50 +246,51 @@ def post_authentication_url
 end
 ```
 
-Para generar la documentación HTML localmente:
+To generate the HTML documentation locally:
 
 ```bash
-gem install yard          # primera vez
-yardoc 'app/**/*.rb'      # genera ./doc/yard
+gem install yard          # first time
+yardoc 'app/**/*.rb'      # generates ./doc/yard
 ```
 
 ---
 
-## Internacionalización (i18n)
+## Internationalization (i18n)
 
-GeoWhisper utiliza el sistema de **internacionalización i18n de Rails** para todos los textos visibles al usuario. Es **obligatorio**:
+GeoWhisper uses Rails' **i18n internationalization** system for every user-visible string. It is **mandatory**:
 
-- **No hardcodear strings** en vistas, controladores, mailers ni flash messages. Todos los textos deben pasar por `t("clave.de.traduccion")` o `I18n.t(...)`.
-- Definir las claves en los ficheros de `config/locales/` (`es.yml`, `en.yml`, ...) siguiendo la jerarquía del recurso (`notes.create.success`, etc.).
-- Mantener **paridad de claves** entre todos los idiomas soportados; una clave nueva en `es.yml` debe añadirse también al resto de locales.
-- Los mensajes de validación de modelos deben usar las claves estándar de `activerecord.errors` / `activemodel.errors`.
+- **Do not hardcode strings** in views, controllers, mailers or flash messages. All text must go through `t("translation.key")` or `I18n.t(...)`.
+- Define keys in the files under `config/locales/` (`es.yml`, `en.yml`, ...) following the resource hierarchy (`notes.create.success`, etc.).
+- Maintain **key parity** across all supported languages; a new key in `es.yml` must also be added to the rest of the locales.
+- Model validation messages must use the standard `activerecord.errors` / `activemodel.errors` keys.
 
 ---
 
-## Estructura del proyecto
+## Project structure
 
 ```
 app/
-  controllers/    # Lógica de peticiones HTTP
-  models/         # Modelos ActiveRecord (User, Note, ...)
-  views/          # Plantillas ERB
-  javascript/     # Stimulus controllers (geolocalización, mapa, ...)
+  controllers/    # HTTP request logic
+  models/         # ActiveRecord models (User, Note, ...)
+  views/          # ERB templates
+  javascript/     # Stimulus controllers (geolocation, map, ...)
 config/
-  routes.rb       # Definición de rutas RESTful
+  routes.rb       # RESTful route definitions
 db/
-  migrate/        # Migraciones de la base de datos
+  migrate/        # Database migrations
 doc/
-  inception.md    # Visión del proyecto, MVP y stretch goals
-test/             # Tests MiniTest
+  inception.md    # Project vision, MVP and stretch goals
+test/             # MiniTest tests
 ```
 
 ---
 
-## Stack técnico
+## Tech stack
 
 - **Ruby on Rails 7.2** + Hotwire/Turbo + Stimulus
-- **SQLite** como base de datos (desarrollo, test y MVP)
-- **Tailwind CSS** vía `tailwindcss-rails` (binario standalone, sin Node)
-- **Active Job** (backend por defecto) para jobs en segundo plano como la purga de notas expiradas
-- **Leaflet + OpenStreetMap** para la vista de mapa (sin API key)
-- **Geolocation API** del navegador para capturar coordenadas
+- **SQLite** as the database (development, test and MVP)
+- **Tailwind CSS** via `tailwindcss-rails` (standalone binary, no Node)
+- **Active Job** (default backend) for background jobs such as purging expired notes
+- **Leaflet + OpenStreetMap** for the map view (no API key)
+- Browser **Geolocation API** to capture coordinates
+- **Progressive Web App (PWA)** — installable on mobile devices (Android/iOS) with a web manifest and service worker, so users can add GeoWhisper to their home screen and use it like a native app

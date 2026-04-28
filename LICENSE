@@ -3,29 +3,42 @@ GeoWhisper — Proprietary Source-Available License
 Copyright (c) 2026 Thomas Scalise. All rights reserved.
 
 This software and its source code (the "Software") are made publicly readable
-for the sole purpose of personal study and reference. No other rights are
-granted.
+for the sole purpose of personal study, reference, and local evaluation. No
+other rights are granted.
 
 1. Permitted use.
-   You may view and read the Software's source code through the hosting
-   platform on which it is published (e.g., GitHub) for the purpose of
-   personal, non-commercial study.
+   You may:
+     (a) view and read the Software's source code through the hosting
+         platform on which it is published (e.g., GitHub) for the purpose
+         of personal, non-commercial study;
+     (b) download or clone a copy of the Software's source code to a
+         machine you personally control;
+     (c) build and run the Software on a machine you personally control,
+         for the purpose of personal, non-commercial study, testing, or
+         evaluation. The running instance MAY be temporarily exposed on a
+         public network or shared with a limited, identifiable group of
+         testers or evaluators (for example, via a tunnel, private link,
+         or invite), provided the instance is not advertised, indexed, or
+         otherwise offered as a service generally available to the public
+         on the Internet.
 
 2. Prohibited use.
    Without the prior, explicit, written permission of the copyright holder,
    you may NOT:
-     (a) copy, download, clone, mirror, archive, or otherwise reproduce the
-         Software or any portion of it, in source or compiled form, except
-         for the transient copies strictly necessary to view the code in a
-         web browser;
-     (b) modify, adapt, translate, or create derivative works based on the
+     (a) modify, adapt, translate, or create derivative works based on the
          Software;
-     (c) redistribute, publish, sublicense, sell, rent, lease, lend, host,
-         or otherwise make the Software available to any third party, in
-         original or modified form;
+     (b) redistribute, publish, sublicense, sell, rent, lease, lend, mirror,
+         re-host, or otherwise make the Software available to any third
+         party, in original or modified form;
+     (c) run, deploy, or otherwise operate the Software, in whole or in
+         part, as a publicly available instance or hosted service —
+         meaning any instance offered, advertised, indexed, or otherwise
+         made generally accessible on the Internet to users beyond a
+         limited group of testers or evaluators authorized under
+         Section 1(c);
      (d) use the Software, in whole or in part, in any product, service,
-         deployment, or work — whether commercial or non-commercial,
-         private or public, internal or external;
+         or deployment for commercial purposes, whether internal or
+         external;
      (e) remove or alter any copyright, trademark, or other proprietary
          notices contained in the Software.
 
