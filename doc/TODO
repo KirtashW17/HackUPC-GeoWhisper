@@ -1,0 +1,12 @@
+* Cleanup
+** doc/*
+** README.md
+** CLAUDE.md
+** prototype: *.jsx currently unused. Some logos unused, other ones duplicated between assets and prototype (may use symlink)
+* Improve the README:
+** Explain it is a Hackathon project (HackUPC 2026)
+** add screenshots
+** check if it's clear how to execute the project (computer & access from mobile), ...
+* Choose a slogan
+* Unify language (english)
+* Check if prototype is complete, aval download well-structured hand-off again, ...
